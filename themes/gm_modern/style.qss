@@ -1,0 +1,10 @@
+* { font-family: ${font_family}; font-size: ${font_size}px; color: ${text_color}; }
+QMainWindow, QWidget#topbar, QGroupBox { background: ${bg_panel}; }
+QGroupBox { border: 1px solid ${frame_border}; margin-top: 8px; padding: 6px; }
+QGroupBox::title { subcontrol-origin: margin; left: 8px; padding: 0 3px; color: ${accent_color}; }
+QPushButton { background: #141414; border: 1px solid ${frame_border}; padding: 6px 10px; }
+QPushButton:hover { background: #1A1A1A; } 
+QPushButton:pressed { background: #222; }
+QLineEdit, QSpinBox, QListWidget, QTableWidget { background: #0D0D0D; border: 1px solid ${frame_border}; padding: 4px 6px; }
+QHeaderView::section { background: #151515; border: 1px solid ${frame_border}; padding: 4px; }
+

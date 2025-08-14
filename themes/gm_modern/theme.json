@@ -1,0 +1,25 @@
+{
+  "engine_version": "1.0.0",
+  "vars": {
+    "font_family": "Consolas",
+    "font_size": 12,
+    "text_color": "#E8E8E8",
+    "frame_border": "#3A3A3A",
+    "accent_color": "#FFD700",
+    "bg_panel": "#111111"
+  },
+  "layout": {
+    "grid": { "cols": 24, "rows": 24, "margin": 8, "gutter": 8 },
+    "regions": {
+      "topbar":       { "gridRect": [0, 0, 24, 2] },
+      "party_list":   { "gridRect": [0, 2, 8, 16] },
+      "editor":       { "gridRect": [8, 2, 16, 16] },
+      "combat_table": { "gridRect": [0, 18, 24, 6] },
+
+      "right_column": { "gridRect": [16, 2, 8, 20] },
+      "dialog_box":   { "gridRect": [1, 20, 14, 3] }
+    }
+  },
+  "qss": "gm-modern.qss"
+}
+
