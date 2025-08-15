@@ -1,0 +1,27 @@
+{
+  "layout": {
+    "grid": { "cols": 24, "rows": 24, "margin": 8, "gutter": 6 },
+    "regions": {
+      "right_column": { "gridRect": [17, 2, 7, 20] },
+      "dialog_box":   { "gridRect": [1, 21, 15, 2] }
+    }
+  },
+  "vars": {
+    "colors": {
+      "card_bg": "#000000",
+      "border_idle": "#B8B8B8",
+      "border_active": "#FFFF00",
+      "text": "#FFFFFF",
+      "hp_good": "#00FF00",
+      "hp_back": "#FF0000",
+      "dialog_bg": "#000000",
+      "dialog_border": "#B8B8B8"
+    },
+    "fonts": {
+      "base_family": "Consolas",
+      "base_size": 10,
+      "dialog_size": 12,
+      "small_size": 9
+    }
+  }
+}

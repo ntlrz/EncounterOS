@@ -1,26 +1,30 @@
 {
-  "engine_version": "1.0.0",
-  "vars": {
-    "font_family": "Georgia",
-    "font_size": 13,
-    "text_color": "#2A2320",
-    "frame_border": "#7B6A57",
-    "accent_color": "#B8860B",
-    "bg_panel": "#F1E6D0"
-  },
   "layout": {
-    "grid": { "cols": 24, "rows": 24, "margin": 10, "gutter": 10 },
+    "grid": { "cols": 24, "rows": 24, "margin": 16, "gutter": 8 },
     "regions": {
-      "topbar":       { "gridRect": [0, 0, 24, 2] },
-      "party_list":   { "gridRect": [0, 2, 7, 16] },
-      "editor":       { "gridRect": [7, 2, 17, 16] },
-      "combat_table": { "gridRect": [0, 18, 24, 6] },
-
-      "right_column": { "gridRect": [16, 2, 8, 20] },
-      "dialog_box":   { "gridRect": [1, 20, 14, 3] }
+      "right_column": { "gridRect": [15, 2, 9, 20] },
+      "dialog_box":   { "gridRect": [1, 19, 13, 4] }
     }
   },
-  "qss": "dark-parchment.qss"
+  "vars": {
+    "colors": {
+      "card_bg": "#2B2316",
+      "border_idle": "#C7A97A",
+      "border_active": "#E6C57A",
+      "text": "#F3E7D3",
+      "hp_good": "#81C784",
+      "hp_back": "#C97171",
+      "dialog_bg": "#1E180F",
+      "dialog_border": "#C7A97A"
+    },
+    "fonts": {
+      "base_family": "Georgia",
+      "base_size": 13,
+      "dialog_size": 15,
+      "small_size": 11
+    }
+  }
 }
+
 
 
