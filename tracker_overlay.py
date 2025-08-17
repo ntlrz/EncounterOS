@@ -1,7 +1,7 @@
 import json, os, sys
 from pathlib import Path
 
-from PySide6.QtCore import Qt, QTimer, QRect, QSize
+from PySide6.QtCore import Qt, QTimer, QRect, QSize, QPoint
 from PySide6.QtGui import QPainter, QColor, QBrush, QPen, QFont, QPixmap
 from PySide6.QtWidgets import QApplication, QWidget
 
@@ -9,7 +9,7 @@ APP_DIR    = Path(__file__).resolve().parent
 PARTY_FP   = APP_DIR/"party.json"
 CONFIG_FP  = APP_DIR/"config.json"
 DIALOG_FP  = APP_DIR/"dialog.txt"
-DIALOGMETA = APP_DIR/"dialog_meta.json"    # NEW: holds portrait + offsets per block
+DIALOGMETA = APP_DIR/"dialog_meta.json"
 THEMES_DIR = APP_DIR/"themes"
 STATUS_DIR = APP_DIR/"icons"/"status"
 
@@ -17,17 +17,8 @@ BASE_W, BASE_H = 1280, 720
 ICON_SIZE      = QSize(64,64)
 STATUS_ICON_SZ = QSize(24,24)
 
-MAGENTA = QColor(255,0,255)
-BLACK   = QColor(0,0,0)
-WHITE   = QColor(255,255,255)
-
 # -------- Theme manager (overlay only) --------
 class ThemeManager:
-    """
-    Overlay Theme Manager
-      - Reads layout.grid and layout.regions from theme.json
-      - Reads vars.colors (hex) and vars.fonts to style the overlay paint
-    """
     def __init__(self):
         self.grid = {
             "grid": {"cols":24,"rows":24,"margin":8,"gutter":8},
@@ -64,7 +55,8 @@ class ThemeManager:
             return QColor(fallback)
 
     def load_theme(self, theme_name: str | None):
-        self.__init__()  # reset defaults
+        # reset to defaults
+        self.__init__()
         if not theme_name:
             return
         tdir = THEMES_DIR / theme_name
@@ -91,7 +83,6 @@ class ThemeManager:
             self.fonts["base_size"]   = int(f.get("base_size",   self.fonts["base_size"]))
             self.fonts["dialog_size"] = int(f.get("dialog_size", self.fonts["dialog_size"]))
             self.fonts["small_size"]  = int(f.get("small_size",  self.fonts["small_size"]))
-
         except Exception:
             pass
 
@@ -122,7 +113,7 @@ def load_dialog_blocks(path:Path):
         block=[]
         for line in path.read_text(encoding="utf-8").splitlines():
             s=line.strip()
-            if s=="": 
+            if s=="":
                 if block: out.append(" ".join(block)); block=[]
             else: block.append(s)
         if block: out.append(" ".join(block))
@@ -151,9 +142,20 @@ def load_status_icons()->dict:
 class Overlay(QWidget):
     def __init__(self, debug=False):
         super().__init__()
-        self.setWindowTitle("Party Tracker Overlay")
+        self.setWindowTitle("EncounterOS Overlay")
         self.resize(BASE_W, BASE_H)
-        self.setAttribute(Qt.WA_OpaquePaintEvent, True)
+
+        # === Window Capture–friendly transparency ===
+        # Keep it a *normal window* (so OBS can see it) but frameless, and enable alpha.
+        self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)    # real per-pixel transparency
+        self.setAttribute(Qt.WA_NoSystemBackground, True)
+        self.setAutoFillBackground(False)
+        self.setMouseTracking(True)  # allow hover handlers if needed
+
+        # simple drag to move
+        self._drag_pos: QPoint | None = None
+
         self.debug = debug
 
         cfg0 = safe_json(CONFIG_FP, {"theme":"gm-modern"})
@@ -164,7 +166,7 @@ class Overlay(QWidget):
         self.party  = safe_json(PARTY_FP, {"party":[]})
         self.config = safe_json(CONFIG_FP, {"combat_mode":False,"turnIndex":0,"dialogIndex":0,"theme":self.current_theme})
         self.dialog = load_dialog_blocks(DIALOG_FP)
-        self.dialog_meta = safe_json(DIALOGMETA, {})  # NEW
+        self.dialog_meta = safe_json(DIALOGMETA, {})
         self.status_icons = load_status_icons()
         self._cache_icons = {}
         self._portrait_cache = {}
@@ -180,6 +182,23 @@ class Overlay(QWidget):
 
         self.timer = QTimer(self); self.timer.timeout.connect(self.poll_files); self.timer.start(200)
 
+    # --- drag to move (frameless) ---
+    def mousePressEvent(self, e):
+        if e.button() == Qt.LeftButton:
+            self._drag_pos = e.globalPosition().toPoint() - self.frameGeometry().topLeft()
+            e.accept()
+
+    def mouseMoveEvent(self, e):
+        if self._drag_pos is not None and (e.buttons() & Qt.LeftButton):
+            self.move(e.globalPosition().toPoint() - self._drag_pos)
+            e.accept()
+
+    def mouseReleaseEvent(self, e):
+        if e.button() == Qt.LeftButton:
+            self._drag_pos = None
+            e.accept()
+
+    # --------------------------------
     def mtime(self, p:Path)->float: return p.stat().st_mtime if p.exists() else 0.0
     def mtime_dir(self, d:Path)->float:
         if not d.exists(): return 0.0
@@ -224,7 +243,11 @@ class Overlay(QWidget):
     # ---------- paint ----------
     def paintEvent(self, ev):
         p = QPainter(self)
-        p.fillRect(self.rect(), MAGENTA)  # chroma
+
+        # Clear fully transparent
+        p.setCompositionMode(QPainter.CompositionMode_Source)
+        p.fillRect(self.rect(), Qt.transparent)
+        p.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
         # theme colors & fonts
         col_card_bg     = self.theme.qcolor("card_bg", "#000000")
@@ -333,7 +356,7 @@ class Overlay(QWidget):
         if not combat and self.dialog:
             dlg = self.theme.region_rect(self.size(), "dialog_box").intersected(self.rect())
 
-            # draw portrait FIRST (behind the box and text)
+            # portrait behind the box/text
             idx = min(self.config.get("dialogIndex",0), max(0,len(self.dialog)-1))
             meta = self.dialog_meta.get(str(idx), {}) if isinstance(self.dialog_meta, dict) else {}
             portrait_rel = meta.get("portrait", "")
@@ -354,9 +377,9 @@ class Overlay(QWidget):
                     y = dlg.y() - pm.height() + off_y
                     p.drawPixmap(x, y, pm)
 
-            # box + text OVER portrait
+            # dialog panel
             p.fillRect(dlg, col_dialog_bg); p.setPen(col_dialog_bdr); p.drawRect(dlg)
-            p.setPen(col_text); p.setFont(font_dialog)
+            p.setPen(self.theme.qcolor("text", "#FFFFFF")); p.setFont(font_dialog)
 
             text = self.dialog[idx]
             words=text.split(); lines=[]; cur=""
@@ -374,8 +397,8 @@ class Overlay(QWidget):
 
 def main():
     app = QApplication(sys.argv)
-    debug = ("--debug" in sys.argv)
-    w = Overlay(debug=debug); w.show()
+    w = Overlay(debug="--debug" in sys.argv)
+    w.show()
     sys.exit(app.exec())
 
 if __name__ == "__main__":
