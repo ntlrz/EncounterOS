@@ -99,16 +99,15 @@ python gm_ui.py
 ```
 
 Click Launch Overlay to start the player view. This program can be read
-with a window capture in OBS.
+with a window capture in OBS, provided you are using Windows 10/11 (1903 and up)
+in your capture properties.
 
 ### Themes
-Stored in themes/<theme-name>/
-
-Each theme contains:
-theme.json (grid layout, variables)
-*.qss (stylesheet)
-
-Switch themes from the Themes UI (or dropdown).
+Themes live in themes/<theme-name>/theme.json and control:
+- Grid/layout regions (e.g., right column, dialog box)
+- Colors (card background, borders, text, HP colors, dialog box)
+- Font family/sizes
+Switch themes in GM UI → Themes (this updates config.json and the overlay re-reads it).
 
 ##License & Credits
 Icons: Modified from game-icons.net.
