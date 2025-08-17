@@ -52,40 +52,53 @@ Default mapping:
 
 ## File Structure
 ├── icons
+
 │   ├── /status/
-│   └── file12.ext
+
+│   └── /dialog-portraits/
+
 ├── themes
+
 │   ├── dark_parchment
+
 │   ├── gm-modern
+
 │   └── rpg-retro
+
 ├── gm_ui.py
+
 ├── trackeroverlay.py
+
 ├── config.json
+
 ├── dialog.txt
+
 └── README.md
+
 
 
 ---
 
 ## Installation
 **Requirements**
+- OBS
 - Python **3.10+**
 
 **Packages**
 ```bash
 pip install pygame pillow PySide6
-
-OBS
+```
 
 ##Running the App
 
-Start the GM UI:
+Start EncounterOS in the command terminal:
 
+```bash
 python gm_ui.py
+```
 
-
-Click Launch Overlay to start the player view.
-Control everything from the GM UI; the overlay updates automatically.
+Click Launch Overlay to start the player view. This program can be read
+with a window capture in OBS.
 
 ### Themes
 Stored in themes/<theme-name>/
@@ -97,5 +110,5 @@ theme.json (grid layout, variables)
 Switch themes from the Themes UI (or dropdown).
 
 ##License & Credits
-Icons: [(Games-Icons.net)](https://game-icons.net)
+Icons: Modified from game-icons.net.
 Code: Apache 2.0
