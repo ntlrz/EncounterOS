@@ -5,7 +5,8 @@
 
 ## Overview
 EncounterOS is a lightweight tool pairing a **Game Master UI** (GM UI) with a **player‑facing overlay** for OBS.  
-The GM UI manages party data, combat, and dialogue; the overlay renders clean, chroma‑key‑ready visuals.
+The GM UI manages party data, combat, and dialogue; the overlay renders clean visuals ready to entice your players and viewers
+into keeping up with the battle state.
 
 ---
 
