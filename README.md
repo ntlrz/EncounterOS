@@ -90,7 +90,7 @@ Default mapping:
 pip install pygame pillow PySide6
 ```
 
-##Running the App
+## Running the App
 
 Start EncounterOS in the command terminal:
 
