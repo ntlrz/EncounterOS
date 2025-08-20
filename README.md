@@ -109,6 +109,6 @@ Themes live in themes/<theme-name>/theme.json and control:
 - Font family/sizes
 Switch themes in GM UI → Themes (this updates config.json and the overlay re-reads it).
 
-##License & Credits
+## License & Credits
 Icons: Modified from game-icons.net.
 Code: Apache 2.0
