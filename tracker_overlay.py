@@ -1,3 +1,5 @@
+# tracker_overlay.py — EncounterOS overlay HUD. Reads party/config/dialog + themes and paints HUD.
+# Compatible with the GM UI posted (auto-refresh, theme hot-reload, enemy status icons).
 import json, os, sys
 from pathlib import Path
 
@@ -17,7 +19,7 @@ BASE_W, BASE_H = 1280, 720
 ICON_SIZE      = QSize(64,64)
 STATUS_ICON_SZ = QSize(24,24)
 
-# -------- Theme manager (overlay only) --------
+# -------- Theme manager --------
 class ThemeManager:
     def __init__(self):
         self.grid = {
@@ -49,13 +51,12 @@ class ThemeManager:
             if not isinstance(s, str): return QColor(fallback)
             s = s.strip()
             if not s.startswith("#"): s = "#" + s
-            qc = QColor(s)
-            return qc if qc.isValid() else QColor(fallback)
+            qc = QColor(s); return qc if qc.isValid() else QColor(fallback)
         except:
             return QColor(fallback)
 
     def load_theme(self, theme_name: str | None):
-        # reset to defaults
+        # reset to defaults first (so missing keys fall back)
         self.__init__()
         if not theme_name:
             return
@@ -84,6 +85,7 @@ class ThemeManager:
             self.fonts["dialog_size"] = int(f.get("dialog_size", self.fonts["dialog_size"]))
             self.fonts["small_size"]  = int(f.get("small_size",  self.fonts["small_size"]))
         except Exception:
+            # swallow theme parse errors, keep defaults
             pass
 
     def qcolor(self, key, fallback="#FFFFFF"):
@@ -145,44 +147,50 @@ class Overlay(QWidget):
         self.setWindowTitle("EncounterOS Overlay")
         self.resize(BASE_W, BASE_H)
 
-        # === Window Capture–friendly transparency ===
-        # Keep it a *normal window* (so OBS can see it) but frameless, and enable alpha.
+        # Window-capture friendly
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
-        self.setAttribute(Qt.WA_TranslucentBackground, True)    # real per-pixel transparency
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setAttribute(Qt.WA_NoSystemBackground, True)
         self.setAutoFillBackground(False)
-        self.setMouseTracking(True)  # allow hover handlers if needed
+        self.setMouseTracking(True)
 
         # simple drag to move
         self._drag_pos: QPoint | None = None
-
-        self.debug = debug
 
         cfg0 = safe_json(CONFIG_FP, {"theme":"gm-modern"})
         self.theme = ThemeManager()
         self.current_theme = cfg0.get("theme", "gm-modern")
         self.theme.load_theme(self.current_theme)
 
+        # live data
         self.party  = safe_json(PARTY_FP, {"party":[]})
-        self.config = safe_json(CONFIG_FP, {"combat_mode":False,"turnIndex":0,"dialogIndex":0,"theme":self.current_theme})
         self.dialog = load_dialog_blocks(DIALOG_FP)
         self.dialog_meta = safe_json(DIALOGMETA, {})
+        self.config = safe_json(CONFIG_FP, {"combat_mode":False,"turnIndex":0,"dialogIndex":0,"theme":self.current_theme})
+
         self.status_icons = load_status_icons()
         self._cache_icons = {}
         self._portrait_cache = {}
 
         self._mtimes = {
-            "party": self.mtime(PARTY_FP),
+            "party":  self.mtime(PARTY_FP),
             "config": self.mtime(CONFIG_FP),
             "dialog": self.mtime(DIALOG_FP),
             "meta":   self.mtime(DIALOGMETA),
             "status": self.mtime_dir(STATUS_DIR),
-            "theme":  self.current_theme
+            "theme_dir": self.mtime_dir(THEMES_DIR / self.current_theme),
         }
 
-        self.timer = QTimer(self); self.timer.timeout.connect(self.poll_files); self.timer.start(200)
+        # Auto-refresh settings from config
+        self.auto_refresh = bool(self.config.get("auto_refresh", True))
+        self.poll_ms = max(100, int(self.config.get("poll_ms", 200)))
 
-    # --- drag to move (frameless) ---
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.poll_files)
+        if self.auto_refresh:
+            self.timer.start(self.poll_ms)
+
+    # --- drag to move ---
     def mousePressEvent(self, e):
         if e.button() == Qt.LeftButton:
             self._drag_pos = e.globalPosition().toPoint() - self.frameGeometry().topLeft()
@@ -198,11 +206,11 @@ class Overlay(QWidget):
             self._drag_pos = None
             e.accept()
 
-    # --------------------------------
+    # --- file mtimes helpers ---
     def mtime(self, p:Path)->float: return p.stat().st_mtime if p.exists() else 0.0
     def mtime_dir(self, d:Path)->float:
         if not d.exists(): return 0.0
-        try: return max(( (d/f).stat().st_mtime for f in os.listdir(d) ), default=0.0)
+        try: return max(((d/f).stat().st_mtime for f in os.listdir(d)), default=0.0)
         except: return 0.0
 
     def poll_files(self):
@@ -211,19 +219,31 @@ class Overlay(QWidget):
         mt_d = self.mtime(DIALOG_FP)
         mt_m = self.mtime(DIALOGMETA)
         mt_s = self.mtime_dir(STATUS_DIR)
+        mt_t = self.mtime_dir(THEMES_DIR / self.current_theme)
 
         if mt_p != self._mtimes["party"]:
-            self.party  = safe_json(PARTY_FP, {"party":[]}); self._cache_icons.clear()
+            self.party = safe_json(PARTY_FP, {"party":[]}); self._cache_icons.clear()
             self._mtimes["party"] = mt_p
 
         if mt_c != self._mtimes["config"]:
-            self.config = safe_json(CONFIG_FP, {"combat_mode":False,"turnIndex":0,"dialogIndex":0,"theme":self.current_theme})
+            self.config = safe_json(CONFIG_FP, self.config or {})
             self._mtimes["config"] = mt_c
+            # theme changed?
             new_theme = self.config.get("theme", self.current_theme)
             if new_theme != self.current_theme:
                 self.current_theme = new_theme
                 self.theme.load_theme(self.current_theme)
-                self.update()
+                # reset theme dir watch
+                self._mtimes["theme_dir"] = self.mtime_dir(THEMES_DIR / self.current_theme)
+            # auto-refresh/interval changed?
+            self.auto_refresh = bool(self.config.get("auto_refresh", True))
+            self.poll_ms = max(100, int(self.config.get("poll_ms", 200)))
+            if self.auto_refresh and not self.timer.isActive():
+                self.timer.start(self.poll_ms)
+            elif not self.auto_refresh and self.timer.isActive():
+                self.timer.stop()
+            elif self.timer.isActive() and self.timer.interval() != self.poll_ms:
+                self.timer.start(self.poll_ms)
 
         if mt_d != self._mtimes["dialog"]:
             self.dialog = load_dialog_blocks(DIALOG_FP)
@@ -237,6 +257,11 @@ class Overlay(QWidget):
         if mt_s != self._mtimes["status"]:
             self.status_icons = load_status_icons()
             self._mtimes["status"] = mt_s
+
+        if mt_t != self._mtimes["theme_dir"]:
+            # live theme editing
+            self.theme.load_theme(self.current_theme)
+            self._mtimes["theme_dir"] = mt_t
 
         self.update()
 
@@ -280,7 +305,7 @@ class Overlay(QWidget):
             active_name = full_party[turn_idx]["name"] if 0<=turn_idx<len(full_party) else ""
             p.setPen(col_text); p.drawText(20, 28, f"Turn {turn_idx+1}/{len(full_party)}: {active_name}")
 
-        # party cards
+        # party/enemy cards
         box_w = right_rect.width()
         box_h = 100
         margin = 10
@@ -326,8 +351,7 @@ class Overlay(QWidget):
                         r=STATUS_ICON_SZ.width()//2
                         p.setPen(QPen(QColor(0,0,0))); p.setBrush(QBrush(col_border_idle)); p.drawEllipse(sx, sy, 2*r, 2*r)
                         p.setPen(QPen(QColor(0,0,0))); p.setFont(font_small)
-                        letter = key[:1].upper()
-                        p.drawText(QRect(sx, sy, 2*r, 2*r), Qt.AlignCenter, letter)
+                        p.drawText(QRect(sx, sy, 2*r, 2*r), Qt.AlignCenter, key[:1].upper())
                     sx -= STATUS_ICON_SZ.width() + 4
 
                 p.setPen(col_text)
@@ -346,11 +370,22 @@ class Overlay(QWidget):
                     else: status="Critical"
                     p.setPen(col_text); p.drawText(content_x, card.y()+54, f"Status: {status}")
 
-            if is_active:
-                badge = QRect(card.right()-28, card.y()+8, 20, 20)
-                p.fillRect(badge, self.theme.qcolor("border_active", "#FFD864"))
-                p.setPen(QPen(QColor(0,0,0))); p.drawRect(badge)
-                p.drawText(badge, Qt.AlignCenter, str(self.config.get("turnIndex",0)+1))
+                    # --- Enemy status icons (even without HP bar) ---
+                    statuses = [s.lower().replace(" ","_") for s in (m.get("statusEffects",[]) or []) if isinstance(s,str)]
+                    if statuses:
+                        sx = content_x
+                        sy = card.y() + 72
+                        for key in statuses[:6]:
+                            pix = self.status_icons.get(key)
+                            if pix:
+                                p.drawPixmap(sx, sy, pix)
+                                sx += STATUS_ICON_SZ.width() + 4
+                            else:
+                                r=STATUS_ICON_SZ.width()//2
+                                p.setPen(QPen(QColor(0,0,0))); p.setBrush(QBrush(col_border_idle)); p.drawEllipse(sx, sy, 2*r, 2*r)
+                                p.setPen(QPen(QColor(0,0,0))); p.setFont(font_small)
+                                p.drawText(QRect(sx, sy, 2*r, 2*r), Qt.AlignCenter, key[:1].upper())
+                                sx += STATUS_ICON_SZ.width() + 4
 
         # ---- Persona-style dialog ----
         if not combat and self.dialog:
