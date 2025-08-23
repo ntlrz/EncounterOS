@@ -391,44 +391,87 @@ class Overlay(QWidget):
         if not combat and self.dialog:
             dlg = self.theme.region_rect(self.size(), "dialog_box").intersected(self.rect())
 
-            # portrait behind the box/text
-            idx = min(self.config.get("dialogIndex",0), max(0,len(self.dialog)-1))
+            # 1) Draw PORTRAIT first (so the dialog panel overlaps it)
+            idx = min(self.config.get("dialogIndex", 0), max(0, len(self.dialog) - 1))
             meta = self.dialog_meta.get(str(idx), {}) if isinstance(self.dialog_meta, dict) else {}
             portrait_rel = meta.get("portrait", "")
             if portrait_rel:
-                path = (APP_DIR/portrait_rel).resolve()
+                path = (APP_DIR / portrait_rel).resolve()
                 if path.exists():
-                    key = (str(path), float(meta.get("portrait_scale", 1.0)))
-                    pm = self._portrait_cache.get(key)
-                    if pm is None:
-                        raw = QPixmap(str(path))
-                        scale = float(meta.get("portrait_scale", 1.0))
-                        base_w, base_h = 360, 460
-                        pm = raw.scaled(int(base_w*scale), int(base_h*scale), Qt.KeepAspectRatio, Qt.SmoothTransformation)
-                        self._portrait_cache[key] = pm
-                    off_x = int(meta.get("portrait_offset_x", 20))
-                    off_y = int(meta.get("portrait_offset_y", -120))
-                    x = dlg.x() + off_x
-                    y = dlg.y() - pm.height() + off_y
-                    p.drawPixmap(x, y, pm)
+                    raw = QPixmap(str(path))
+                    if not raw.isNull():
+                        # Inputs / defaults
+                        req_scale = float(meta.get("portrait_scale", 1.0))
+                        side   = str(meta.get("portrait_side", "left")).lower()     # 'left' | 'right'
+                        anchor = str(meta.get("portrait_anchor", "bottom")).lower() # 'bottom'|'top'|'center'
+                        pad_x  = int(meta.get("portrait_pad_x", 20))
+                        pad_y  = int(meta.get("portrait_pad_y", -12))
+                        top_margin = int(meta.get("portrait_top_margin", 8))        # prevent clipping at window top
 
-            # dialog panel
-            p.fillRect(dlg, col_dialog_bg); p.setPen(col_dialog_bdr); p.drawRect(dlg)
-            p.setPen(self.theme.qcolor("text", "#FFFFFF")); p.setFont(font_dialog)
+                        # Base scaled portrait (requested scale first)
+                        pm = raw.scaled(int(raw.width() * req_scale),
+                                        int(raw.height() * req_scale),
+                                        Qt.KeepAspectRatio, Qt.SmoothTransformation)
+
+                        # Compute target X based on side
+                        if side == "right":
+                            x = dlg.right() - pad_x - pm.width()
+                        else:
+                            x = dlg.x() + pad_x
+
+                        # Compute target Y based on anchor
+                        if anchor == "bottom":
+                            y = dlg.bottom() - pm.height() + pad_y
+                        elif anchor == "top":
+                            y = dlg.y() + pad_y
+                        else:  # 'center'
+                            y = dlg.center().y() - pm.height() // 2 + pad_y
+
+                        # ---- AUTO-FIT: prevent top clipping by scaling down if needed ----
+                        available_h = max(1, dlg.bottom() - top_margin + pad_y)
+                        if anchor == "bottom":
+                            if pm.height() > available_h:
+                                scale_fit = available_h / float(pm.height())
+                                if scale_fit < 1.0:
+                                    new_w = max(1, int(pm.width() * scale_fit))
+                                    new_h = max(1, int(pm.height() * scale_fit))
+                                    pm = pm.scaled(new_w, new_h, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                                    y = dlg.bottom() - pm.height() + pad_y
+
+                        # Final clamp: never draw above the top margin
+                        if y < top_margin:
+                            y = top_margin
+
+                        p.drawPixmap(x, y, pm)
+
+
+
+            # 2) Draw DIALOG PANEL AFTER portrait so panel overlaps the portrait’s bottom
+            p.fillRect(dlg, col_dialog_bg)
+            p.setPen(col_dialog_bdr)
+            p.drawRect(dlg)
+            p.setPen(self.theme.qcolor("text", "#FFFFFF"))
+            p.setFont(font_dialog)
 
             text = self.dialog[idx]
-            words=text.split(); lines=[]; cur=""
+            words = text.split()
+            lines = []
+            cur = ""
             fm = p.fontMetrics()
-            maxw = max(0, dlg.width()-16)
+            maxw = max(0, dlg.width() - 16)
             for w in words:
-                t = (cur+" "+w).strip()
-                if fm.horizontalAdvance(t) <= maxw: cur=t
+                t = (cur + " " + w).strip()
+                if fm.horizontalAdvance(t) <= maxw:
+                    cur = t
                 else:
-                    if cur: lines.append(cur)
-                    cur=w
-            if cur: lines.append(cur)
-            for i,ln in enumerate(lines[:2]):
-                p.drawText(dlg.adjusted(8,8,-8,-8).translated(0, i*(fm.height()+4)), ln)
+                    if cur:
+                        lines.append(cur)
+                    cur = w
+            if cur:
+                lines.append(cur)
+            for i, ln in enumerate(lines[:2]):
+                p.drawText(dlg.adjusted(8, 8, -8, -8).translated(0, i * (fm.height() + 4)), ln)
+
 
 def main():
     app = QApplication(sys.argv)
