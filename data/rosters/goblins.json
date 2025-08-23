@@ -1,0 +1,6 @@
+{
+  "characters": [
+    {"id": "goblin-01", "name": "Goblin Skirmisher", "type": "monster", "hp": {"max": 12}, "ac": 15},
+    {"id": "thane-ranger", "name": "Thane Ranger", "type": "pc", "hp": {"max": 32}, "ac": 16}
+  ]
+}

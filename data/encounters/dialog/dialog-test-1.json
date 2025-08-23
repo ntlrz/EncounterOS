@@ -1,0 +1,35 @@
+{
+  "encounter_id": "Dialog Test 1",
+  "name": "Dialog Test 1",
+  "type": "dialog",
+  "sequence": [
+    {
+      "speaker": "Guard",
+      "text": "Speech 2",
+      "portrait": "",
+      "placement": "left",
+      "portrait_scale": 1.0,
+      "portrait_offset_x": 20,
+      "portrait_offset_y": -120
+    },
+    {
+      "speaker": "Elder",
+      "text": "Speech 2",
+      "portrait": "",
+      "placement": "left",
+      "portrait_scale": 1.0,
+      "portrait_offset_x": 20,
+      "portrait_offset_y": -120
+    },
+    {
+      "speaker": "Elder",
+      "text": "Speech 3",
+      "portrait": "",
+      "placement": "left",
+      "portrait_scale": 1.0,
+      "portrait_offset_x": 20,
+      "portrait_offset_y": -120
+    }
+  ],
+  "created_at": "2025-08-22T22:34:51+00:00"
+}
