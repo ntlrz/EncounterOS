@@ -64,12 +64,19 @@ Switch themes from Overlay → Theme (menu). The choice is saved to config.json 
 
 Default mapping:
 F4 → Toggle overlay on/off
+
 F5 → Advance turn / dialog
+
 F7 → Previous turn / dialog
+
 F6 → Toggle Peace/Combat mode
+
 F8 → Make selected dialog block live
+
 Delete → Remove selected combatant or dialog block
+
 / → Focus quick‑add search
+
 Double‑click a combatant → open editor
 
 ---
