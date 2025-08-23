@@ -1,0 +1,128 @@
+{
+  "pack_id": "srd_5e_2024_undead",
+  "name": "SRD Creatures (2024) - Undead",
+  "system": "5e",
+  "entries": [
+    {
+      "id": "skeleton",
+      "name": "Skeleton",
+      "side_default": "opponents",
+      "hp": 13,
+      "init_mod": 2,
+      "rank": "1/4",
+      "tags": ["undead", "medium", "brute"],
+      "biomes": ["dungeon", "ruins", "desert"],
+      "icon": ""
+    },
+    {
+      "id": "zombie",
+      "name": "Zombie",
+      "side_default": "opponents",
+      "hp": 22,
+      "init_mod": -2,
+      "rank": "1/4",
+      "tags": ["undead", "medium", "brute"],
+      "biomes": ["dungeon", "ruins", "swamp"],
+      "icon": ""
+    },
+    {
+      "id": "ghoul",
+      "name": "Ghoul",
+      "side_default": "opponents",
+      "hp": 22,
+      "init_mod": 2,
+      "rank": "1",
+      "tags": ["undead", "medium"],
+      "biomes": ["graveyard", "dungeon", "ruins"],
+      "icon": ""
+    },
+    {
+      "id": "ghast",
+      "name": "Ghast",
+      "side_default": "opponents",
+      "hp": 36,
+      "init_mod": 3,
+      "rank": "2",
+      "tags": ["undead", "medium", "leader"],
+      "biomes": ["graveyard", "dungeon", "ruins"],
+      "icon": ""
+    },
+    {
+      "id": "wight",
+      "name": "Wight",
+      "side_default": "opponents",
+      "hp": 45,
+      "init_mod": 2,
+      "rank": "3",
+      "tags": ["undead", "medium", "leader"],
+      "biomes": ["graveyard", "ruins", "wilderness"],
+      "icon": ""
+    },
+    {
+      "id": "wraith",
+      "name": "Wraith",
+      "side_default": "opponents",
+      "hp": 67,
+      "init_mod": 3,
+      "rank": "5",
+      "tags": ["undead", "medium", "incorporeal"],
+      "biomes": ["ruins", "dungeon", "haunted"],
+      "icon": ""
+    },
+    {
+      "id": "mummy",
+      "name": "Mummy",
+      "side_default": "opponents",
+      "hp": 58,
+      "init_mod": -1,
+      "rank": "3",
+      "tags": ["undead", "medium"],
+      "biomes": ["desert", "tomb", "ruins"],
+      "icon": ""
+    },
+    {
+      "id": "mummy-lord",
+      "name": "Mummy Lord",
+      "side_default": "opponents",
+      "hp": 97,
+      "init_mod": 0,
+      "rank": "15",
+      "tags": ["undead", "medium", "caster", "leader"],
+      "biomes": ["desert", "tomb", "ruins"],
+      "icon": ""
+    },
+    {
+      "id": "vampire-spawn",
+      "name": "Vampire Spawn",
+      "side_default": "opponents",
+      "hp": 82,
+      "init_mod": 3,
+      "rank": "5",
+      "tags": ["undead", "medium"],
+      "biomes": ["urban", "dungeon", "castle"],
+      "icon": ""
+    },
+    {
+      "id": "vampire",
+      "name": "Vampire",
+      "side_default": "opponents",
+      "hp": 144,
+      "init_mod": 4,
+      "rank": "13",
+      "tags": ["undead", "medium", "leader", "caster"],
+      "biomes": ["urban", "castle", "dungeon"],
+      "icon": ""
+    },
+    {
+      "id": "lich",
+      "name": "Lich",
+      "side_default": "opponents",
+      "hp": 135,
+      "init_mod": 2,
+      "rank": "21",
+      "tags": ["undead", "medium", "caster", "leader"],
+      "biomes": ["dungeon", "ruins", "lair"],
+      "icon": ""
+    }
+  ]
+}

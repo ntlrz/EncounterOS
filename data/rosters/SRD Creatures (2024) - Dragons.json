@@ -1,0 +1,117 @@
+{
+  "pack_id": "srd_5e_2024_dragons",
+  "name": "SRD Creatures (2024) - Dragons",
+  "system": "5e",
+  "entries": [
+    {
+      "id": "young-black-dragon",
+      "name": "Young Black Dragon",
+      "side_default": "opponents",
+      "hp": 127,
+      "init_mod": 2,
+      "rank": "7",
+      "tags": ["dragon", "large", "acid", "flying"],
+      "biomes": ["swamp", "ruins"],
+      "icon": ""
+    },
+    {
+      "id": "young-blue-dragon",
+      "name": "Young Blue Dragon",
+      "side_default": "opponents",
+      "hp": 152,
+      "init_mod": 0,
+      "rank": "9",
+      "tags": ["dragon", "large", "lightning", "flying"],
+      "biomes": ["desert", "wastelands"],
+      "icon": ""
+    },
+    {
+      "id": "young-green-dragon",
+      "name": "Young Green Dragon",
+      "side_default": "opponents",
+      "hp": 136,
+      "init_mod": 1,
+      "rank": "8",
+      "tags": ["dragon", "large", "poison", "flying"],
+      "biomes": ["forest", "swamp"],
+      "icon": ""
+    },
+    {
+      "id": "young-red-dragon",
+      "name": "Young Red Dragon",
+      "side_default": "opponents",
+      "hp": 178,
+      "init_mod": 0,
+      "rank": "10",
+      "tags": ["dragon", "large", "fire", "flying"],
+      "biomes": ["mountains", "volcano"],
+      "icon": ""
+    },
+    {
+      "id": "young-white-dragon",
+      "name": "Young White Dragon",
+      "side_default": "opponents",
+      "hp": 133,
+      "init_mod": 2,
+      "rank": "6",
+      "tags": ["dragon", "large", "cold", "flying"],
+      "biomes": ["tundra", "arctic", "mountains"],
+      "icon": ""
+    },
+    {
+      "id": "adult-brass-dragon",
+      "name": "Adult Brass Dragon",
+      "side_default": "opponents",
+      "hp": 172,
+      "init_mod": 0,
+      "rank": "13",
+      "tags": ["dragon", "huge", "fire", "flying"],
+      "biomes": ["desert", "wastelands"],
+      "icon": ""
+    },
+    {
+      "id": "adult-bronze-dragon",
+      "name": "Adult Bronze Dragon",
+      "side_default": "opponents",
+      "hp": 212,
+      "init_mod": 0,
+      "rank": "15",
+      "tags": ["dragon", "huge", "lightning", "flying"],
+      "biomes": ["coastal", "sea", "hills"],
+      "icon": ""
+    },
+    {
+      "id": "adult-copper-dragon",
+      "name": "Adult Copper Dragon",
+      "side_default": "opponents",
+      "hp": 184,
+      "init_mod": 1,
+      "rank": "14",
+      "tags": ["dragon", "huge", "acid", "flying"],
+      "biomes": ["hills", "mountains"],
+      "icon": ""
+    },
+    {
+      "id": "adult-gold-dragon",
+      "name": "Adult Gold Dragon",
+      "side_default": "opponents",
+      "hp": 256,
+      "init_mod": 0,
+      "rank": "17",
+      "tags": ["dragon", "huge", "fire", "flying"],
+      "biomes": ["mountains", "temple"],
+      "icon": ""
+    },
+    {
+      "id": "adult-silver-dragon",
+      "name": "Adult Silver Dragon",
+      "side_default": "opponents",
+      "hp": 243,
+      "init_mod": 0,
+      "rank": "16",
+      "tags": ["dragon", "huge", "cold", "flying"],
+      "biomes": ["mountains", "tundra"],
+      "icon": ""
+    }
+  ]
+}

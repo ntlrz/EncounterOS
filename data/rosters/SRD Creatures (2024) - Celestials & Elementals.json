@@ -1,0 +1,84 @@
+{
+  "pack_id": "srd_5e_2024_celestials_elementals",
+  "name": "SRD Creatures (2024) - Celestials & Elementals",
+  "system": "5e",
+  "entries": [
+    {
+      "id": "deva",
+      "name": "Deva",
+      "side_default": "allies",
+      "hp": 136,
+      "init_mod": 2,
+      "rank": "10",
+      "tags": ["celestial", "medium", "angel"],
+      "biomes": ["mountains", "temple", "heavenly"],
+      "icon": ""
+    },
+    {
+      "id": "planetar",
+      "name": "Planetar",
+      "side_default": "allies",
+      "hp": 200,
+      "init_mod": 2,
+      "rank": "16",
+      "tags": ["celestial", "large", "angel", "leader"],
+      "biomes": ["mountains", "temple", "heavenly"],
+      "icon": ""
+    },
+    {
+      "id": "solar",
+      "name": "Solar",
+      "side_default": "allies",
+      "hp": 243,
+      "init_mod": 2,
+      "rank": "21",
+      "tags": ["celestial", "large", "angel", "leader"],
+      "biomes": ["mountains", "temple", "heavenly"],
+      "icon": ""
+    },
+    {
+      "id": "air-elemental",
+      "name": "Air Elemental",
+      "side_default": "opponents",
+      "hp": 90,
+      "init_mod": 5,
+      "rank": "5",
+      "tags": ["elemental", "large", "air", "flying"],
+      "biomes": ["mountains", "sky", "plains"],
+      "icon": ""
+    },
+    {
+      "id": "earth-elemental",
+      "name": "Earth Elemental",
+      "side_default": "opponents",
+      "hp": 126,
+      "init_mod": -1,
+      "rank": "5",
+      "tags": ["elemental", "large", "earth"],
+      "biomes": ["underground", "mountains", "caves"],
+      "icon": ""
+    },
+    {
+      "id": "fire-elemental",
+      "name": "Fire Elemental",
+      "side_default": "opponents",
+      "hp": 102,
+      "init_mod": 3,
+      "rank": "5",
+      "tags": ["elemental", "large", "fire"],
+      "biomes": ["volcano", "desert", "wastelands"],
+      "icon": ""
+    },
+    {
+      "id": "water-elemental",
+      "name": "Water Elemental",
+      "side_default": "opponents",
+      "hp": 114,
+      "init_mod": 2,
+      "rank": "5",
+      "tags": ["elemental", "large", "water"],
+      "biomes": ["sea", "river", "lake"],
+      "icon": ""
+    }
+  ]
+}

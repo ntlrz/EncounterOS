@@ -1,0 +1,161 @@
+{
+  "pack_id": "srd_5e_2024_giants_monstrosities",
+  "name": "SRD Creatures (2024) - Giants & Monstrosities",
+  "system": "5e",
+  "entries": [
+    {
+      "id": "ogre",
+      "name": "Ogre",
+      "side_default": "opponents",
+      "hp": 59,
+      "init_mod": -1,
+      "rank": "2",
+      "tags": ["giant", "large", "brute"],
+      "biomes": ["swamp", "mountains", "hills"],
+      "icon": ""
+    },
+    {
+      "id": "troll",
+      "name": "Troll",
+      "side_default": "opponents",
+      "hp": 84,
+      "init_mod": 1,
+      "rank": "5",
+      "tags": ["giant", "large", "regeneration"],
+      "biomes": ["swamp", "hills", "caves"],
+      "icon": ""
+    },
+    {
+      "id": "hill-giant",
+      "name": "Hill Giant",
+      "side_default": "opponents",
+      "hp": 105,
+      "init_mod": -1,
+      "rank": "5",
+      "tags": ["giant", "huge", "brute"],
+      "biomes": ["hills", "mountains", "plains"],
+      "icon": ""
+    },
+    {
+      "id": "stone-giant",
+      "name": "Stone Giant",
+      "side_default": "opponents",
+      "hp": 126,
+      "init_mod": 2,
+      "rank": "7",
+      "tags": ["giant", "huge"],
+      "biomes": ["mountains", "underground"],
+      "icon": ""
+    },
+    {
+      "id": "frost-giant",
+      "name": "Frost Giant",
+      "side_default": "opponents",
+      "hp": 138,
+      "init_mod": -1,
+      "rank": "8",
+      "tags": ["giant", "huge", "cold"],
+      "biomes": ["tundra", "mountains", "arctic"],
+      "icon": ""
+    },
+    {
+      "id": "fire-giant",
+      "name": "Fire Giant",
+      "side_default": "opponents",
+      "hp": 162,
+      "init_mod": -1,
+      "rank": "9",
+      "tags": ["giant", "huge", "fire"],
+      "biomes": ["mountains", "volcano"],
+      "icon": ""
+    },
+    {
+      "id": "cloud-giant",
+      "name": "Cloud Giant",
+      "side_default": "opponents",
+      "hp": 200,
+      "init_mod": 0,
+      "rank": "9",
+      "tags": ["giant", "huge"],
+      "biomes": ["mountains", "clouds"],
+      "icon": ""
+    },
+    {
+      "id": "storm-giant",
+      "name": "Storm Giant",
+      "side_default": "opponents",
+      "hp": 230,
+      "init_mod": 2,
+      "rank": "13",
+      "tags": ["giant", "huge", "storm"],
+      "biomes": ["coastal", "mountains", "sea"],
+      "icon": ""
+    },
+    {
+      "id": "chimera",
+      "name": "Chimera",
+      "side_default": "opponents",
+      "hp": 114,
+      "init_mod": 0,
+      "rank": "6",
+      "tags": ["monstrosity", "large", "flying"],
+      "biomes": ["mountains", "hills", "wastelands"],
+      "icon": ""
+    },
+    {
+      "id": "griffon",
+      "name": "Griffon",
+      "side_default": "opponents",
+      "hp": 59,
+      "init_mod": 2,
+      "rank": "2",
+      "tags": ["monstrosity", "large", "flying"],
+      "biomes": ["mountains", "hills"],
+      "icon": ""
+    },
+    {
+      "id": "hydra",
+      "name": "Hydra",
+      "side_default": "opponents",
+      "hp": 172,
+      "init_mod": 1,
+      "rank": "8",
+      "tags": ["monstrosity", "huge", "multiheaded"],
+      "biomes": ["swamp", "lake", "river"],
+      "icon": ""
+    },
+    {
+      "id": "manticore",
+      "name": "Manticore",
+      "side_default": "opponents",
+      "hp": 68,
+      "init_mod": 3,
+      "rank": "3",
+      "tags": ["monstrosity", "large", "flying"],
+      "biomes": ["hills", "desert", "wastelands"],
+      "icon": ""
+    },
+    {
+      "id": "minotaur",
+      "name": "Minotaur",
+      "side_default": "opponents",
+      "hp": 76,
+      "init_mod": 0,
+      "rank": "3",
+      "tags": ["monstrosity", "large"],
+      "biomes": ["labyrinth", "ruins"],
+      "icon": ""
+    },
+    {
+      "id": "wyvern",
+      "name": "Wyvern",
+      "side_default": "opponents",
+      "hp": 110,
+      "init_mod": 2,
+      "rank": "6",
+      "tags": ["dragon", "large", "flying"],
+      "biomes": ["mountains", "hills", "plains"],
+      "icon": ""
+    }
+  ]
+}

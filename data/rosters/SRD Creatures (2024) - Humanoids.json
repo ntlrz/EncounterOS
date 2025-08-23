@@ -1,0 +1,216 @@
+{
+  "pack_id": "srd_5e_2024_humanoids",
+  "name": "SRD Creatures (2024) - Humanoids",
+  "system": "5e",
+  "entries": [
+    {
+      "id": "bandit",
+      "name": "Bandit",
+      "side_default": "opponents",
+      "hp": 11,
+      "init_mod": 1,
+      "rank": "1/8",
+      "tags": ["humanoid", "medium"],
+      "biomes": ["urban", "roads", "coastal"],
+      "icon": ""
+    },
+    {
+      "id": "bandit-captain",
+      "name": "Bandit Captain",
+      "side_default": "opponents",
+      "hp": 65,
+      "init_mod": 3,
+      "rank": "2",
+      "tags": ["humanoid", "medium", "leader"],
+      "biomes": ["urban", "roads", "coastal"],
+      "icon": ""
+    },
+    {
+      "id": "guard",
+      "name": "Guard",
+      "side_default": "allies",
+      "hp": 11,
+      "init_mod": 1,
+      "rank": "1/8",
+      "tags": ["humanoid", "medium"],
+      "biomes": ["urban", "roads", "fortress"],
+      "icon": ""
+    },
+    {
+      "id": "scout",
+      "name": "Scout",
+      "side_default": "allies",
+      "hp": 16,
+      "init_mod": 3,
+      "rank": "1/2",
+      "tags": ["humanoid", "medium", "ranged", "skirmisher"],
+      "biomes": ["forest", "hills", "plains"],
+      "icon": ""
+    },
+    {
+      "id": "thug",
+      "name": "Thug",
+      "side_default": "opponents",
+      "hp": 32,
+      "init_mod": 0,
+      "rank": "1/2",
+      "tags": ["humanoid", "medium", "brute"],
+      "biomes": ["urban", "docks", "roads"],
+      "icon": ""
+    },
+    {
+      "id": "acolyte",
+      "name": "Acolyte",
+      "side_default": "allies",
+      "hp": 9,
+      "init_mod": 0,
+      "rank": "1/4",
+      "tags": ["humanoid", "medium", "support"],
+      "biomes": ["temple", "settlement", "urban"],
+      "icon": ""
+    },
+    {
+      "id": "cultist",
+      "name": "Cultist",
+      "side_default": "opponents",
+      "hp": 9,
+      "init_mod": 1,
+      "rank": "1/8",
+      "tags": ["humanoid", "medium"],
+      "biomes": ["urban", "dungeon", "ruins"],
+      "icon": ""
+    },
+    {
+      "id": "cult-fanatic",
+      "name": "Cult Fanatic",
+      "side_default": "opponents",
+      "hp": 33,
+      "init_mod": 2,
+      "rank": "2",
+      "tags": ["humanoid", "medium", "caster", "leader"],
+      "biomes": ["urban", "dungeon", "ruins"],
+      "icon": ""
+    },
+    {
+      "id": "noble",
+      "name": "Noble",
+      "side_default": "allies",
+      "hp": 9,
+      "init_mod": 1,
+      "rank": "1/8",
+      "tags": ["humanoid", "medium"],
+      "biomes": ["urban", "court", "estate"],
+      "icon": ""
+    },
+    {
+      "id": "tribal-warrior",
+      "name": "Tribal Warrior",
+      "side_default": "opponents",
+      "hp": 11,
+      "init_mod": 0,
+      "rank": "1/8",
+      "tags": ["humanoid", "medium"],
+      "biomes": ["forest", "hills", "coastal"],
+      "icon": ""
+    },
+    {
+      "id": "berserker",
+      "name": "Berserker",
+      "side_default": "opponents",
+      "hp": 67,
+      "init_mod": 2,
+      "rank": "2",
+      "tags": ["humanoid", "medium", "brute"],
+      "biomes": ["tundra", "forest", "hills"],
+      "icon": ""
+    },
+    {
+      "id": "veteran",
+      "name": "Veteran",
+      "side_default": "allies",
+      "hp": 58,
+      "init_mod": 1,
+      "rank": "3",
+      "tags": ["humanoid", "medium", "martial"],
+      "biomes": ["urban", "fortress", "roads"],
+      "icon": ""
+    },
+    {
+      "id": "knight",
+      "name": "Knight",
+      "side_default": "allies",
+      "hp": 52,
+      "init_mod": 0,
+      "rank": "3",
+      "tags": ["humanoid", "medium", "martial", "mounted"],
+      "biomes": ["plains", "urban", "fortress"],
+      "icon": ""
+    },
+    {
+      "id": "goblin",
+      "name": "Goblin",
+      "side_default": "opponents",
+      "hp": 7,
+      "init_mod": 2,
+      "rank": "1/4",
+      "tags": ["humanoid", "small", "skirmisher"],
+      "biomes": ["forest", "hills", "underground"],
+      "icon": ""
+    },
+    {
+      "id": "hobgoblin",
+      "name": "Hobgoblin",
+      "side_default": "opponents",
+      "hp": 11,
+      "init_mod": 1,
+      "rank": "1/2",
+      "tags": ["humanoid", "medium", "martial"],
+      "biomes": ["hills", "plains", "fortress"],
+      "icon": ""
+    },
+    {
+      "id": "bugbear",
+      "name": "Bugbear",
+      "side_default": "opponents",
+      "hp": 27,
+      "init_mod": 2,
+      "rank": "1",
+      "tags": ["humanoid", "medium", "brute"],
+      "biomes": ["forest", "hills", "caves"],
+      "icon": ""
+    },
+    {
+      "id": "kobold",
+      "name": "Kobold",
+      "side_default": "opponents",
+      "hp": 5,
+      "init_mod": 2,
+      "rank": "1/8",
+      "tags": ["humanoid", "small"],
+      "biomes": ["underground", "hills", "mountains"],
+      "icon": ""
+    },
+    {
+      "id": "orc",
+      "name": "Orc",
+      "side_default": "opponents",
+      "hp": 15,
+      "init_mod": 1,
+      "rank": "1/2",
+      "tags": ["humanoid", "medium", "aggressive"],
+      "biomes": ["plains", "mountains", "hills"],
+      "icon": ""
+    },
+    {
+      "id": "lizardfolk",
+      "name": "Lizardfolk",
+      "side_default": "opponents",
+      "hp": 22,
+      "init_mod": 0,
+      "rank": "1/2",
+      "tags": ["humanoid", "medium", "amphibious"],
+      "biomes": ["swamp", "coastal", "river"],
+      "icon": ""
+    }
+  ]
+}

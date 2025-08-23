@@ -1,0 +1,172 @@
+{
+  "pack_id": "srd_5e_2024_oozes_plants_constructs",
+  "name": "SRD Creatures (2024) - Oozes, Plants & Constructs",
+  "system": "5e",
+  "entries": [
+    {
+      "id": "gray-ooze",
+      "name": "Gray Ooze",
+      "side_default": "opponents",
+      "hp": 22,
+      "init_mod": -1,
+      "rank": "1/2",
+      "tags": ["ooze", "medium"],
+      "biomes": ["dungeon", "caves"],
+      "icon": ""
+    },
+    {
+      "id": "gelatinous-cube",
+      "name": "Gelatinous Cube",
+      "side_default": "opponents",
+      "hp": 84,
+      "init_mod": -2,
+      "rank": "2",
+      "tags": ["ooze", "large"],
+      "biomes": ["dungeon", "caves"],
+      "icon": ""
+    },
+    {
+      "id": "black-pudding",
+      "name": "Black Pudding",
+      "side_default": "opponents",
+      "hp": 85,
+      "init_mod": -3,
+      "rank": "4",
+      "tags": ["ooze", "large"],
+      "biomes": ["dungeon", "caves"],
+      "icon": ""
+    },
+    {
+      "id": "ochre-jelly",
+      "name": "Ochre Jelly",
+      "side_default": "opponents",
+      "hp": 45,
+      "init_mod": -2,
+      "rank": "2",
+      "tags": ["ooze", "large"],
+      "biomes": ["dungeon", "caves"],
+      "icon": ""
+    },
+    {
+      "id": "twig-blight",
+      "name": "Twig Blight",
+      "side_default": "opponents",
+      "hp": 4,
+      "init_mod": 1,
+      "rank": "1/8",
+      "tags": ["plant", "small"],
+      "biomes": ["forest", "swamp"],
+      "icon": ""
+    },
+    {
+      "id": "needle-blight",
+      "name": "Needle Blight",
+      "side_default": "opponents",
+      "hp": 11,
+      "init_mod": 1,
+      "rank": "1/4",
+      "tags": ["plant", "medium"],
+      "biomes": ["forest", "swamp"],
+      "icon": ""
+    },
+    {
+      "id": "vine-blight",
+      "name": "Vine Blight",
+      "side_default": "opponents",
+      "hp": 26,
+      "init_mod": 0,
+      "rank": "1/2",
+      "tags": ["plant", "medium"],
+      "biomes": ["forest", "swamp"],
+      "icon": ""
+    },
+    {
+      "id": "shambling-mound",
+      "name": "Shambling Mound",
+      "side_default": "opponents",
+      "hp": 136,
+      "init_mod": 0,
+      "rank": "5",
+      "tags": ["plant", "large"],
+      "biomes": ["swamp", "forest"],
+      "icon": ""
+    },
+    {
+      "id": "animated-armor",
+      "name": "Animated Armor",
+      "side_default": "opponents",
+      "hp": 33,
+      "init_mod": 0,
+      "rank": "1",
+      "tags": ["construct", "medium"],
+      "biomes": ["dungeon", "fortress"],
+      "icon": ""
+    },
+    {
+      "id": "helmed-horror",
+      "name": "Helmed Horror",
+      "side_default": "opponents",
+      "hp": 60,
+      "init_mod": 1,
+      "rank": "4",
+      "tags": ["construct", "medium"],
+      "biomes": ["dungeon", "fortress"],
+      "icon": ""
+    },
+    {
+      "id": "shield-guardian",
+      "name": "Shield Guardian",
+      "side_default": "allies",
+      "hp": 142,
+      "init_mod": -1,
+      "rank": "7",
+      "tags": ["construct", "large"],
+      "biomes": ["urban", "dungeon"],
+      "icon": ""
+    },
+    {
+      "id": "stone-golem",
+      "name": "Stone Golem",
+      "side_default": "opponents",
+      "hp": 178,
+      "init_mod": -1,
+      "rank": "10",
+      "tags": ["construct", "large"],
+      "biomes": ["dungeon", "temple"],
+      "icon": ""
+    },
+    {
+      "id": "iron-golem",
+      "name": "Iron Golem",
+      "side_default": "opponents",
+      "hp": 210,
+      "init_mod": -1,
+      "rank": "16",
+      "tags": ["construct", "large"],
+      "biomes": ["dungeon", "fortress"],
+      "icon": ""
+    },
+    {
+      "id": "flesh-golem",
+      "name": "Flesh Golem",
+      "side_default": "opponents",
+      "hp": 93,
+      "init_mod": -1,
+      "rank": "5",
+      "tags": ["construct", "medium"],
+      "biomes": ["laboratory", "dungeon"],
+      "icon": ""
+    },
+    {
+      "id": "clay-golem",
+      "name": "Clay Golem",
+      "side_default": "opponents",
+      "hp": 133,
+      "init_mod": -1,
+      "rank": "9",
+      "tags": ["construct", "large"],
+      "biomes": ["temple", "dungeon"],
+      "icon": ""
+    }
+  ]
+}

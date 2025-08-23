@@ -1,0 +1,117 @@
+{
+  "pack_id": "srd_5e_2024_fiends",
+  "name": "SRD Creatures (2024) - Fiends",
+  "system": "5e",
+  "entries": [
+    {
+      "id": "imp",
+      "name": "Imp",
+      "side_default": "opponents",
+      "hp": 10,
+      "init_mod": 3,
+      "rank": "1",
+      "tags": ["fiend", "tiny", "devil", "flying"],
+      "biomes": ["urban", "hells"],
+      "icon": ""
+    },
+    {
+      "id": "quasit",
+      "name": "Quasit",
+      "side_default": "opponents",
+      "hp": 7,
+      "init_mod": 2,
+      "rank": "1",
+      "tags": ["fiend", "tiny", "demon", "shapechanger"],
+      "biomes": ["abyss", "ruins"],
+      "icon": ""
+    },
+    {
+      "id": "shadow-demon",
+      "name": "Shadow Demon",
+      "side_default": "opponents",
+      "hp": 66,
+      "init_mod": 2,
+      "rank": "4",
+      "tags": ["fiend", "medium", "demon", "incorporeal"],
+      "biomes": ["abyss", "ruins", "haunted"],
+      "icon": ""
+    },
+    {
+      "id": "barbed-devil",
+      "name": "Barbed Devil",
+      "side_default": "opponents",
+      "hp": 110,
+      "init_mod": 2,
+      "rank": "5",
+      "tags": ["fiend", "medium", "devil"],
+      "biomes": ["hells", "fortress"],
+      "icon": ""
+    },
+    {
+      "id": "bone-devil",
+      "name": "Bone Devil",
+      "side_default": "opponents",
+      "hp": 142,
+      "init_mod": 2,
+      "rank": "9",
+      "tags": ["fiend", "large", "devil"],
+      "biomes": ["hells", "fortress"],
+      "icon": ""
+    },
+    {
+      "id": "erinyes",
+      "name": "Erinyes",
+      "side_default": "opponents",
+      "hp": 153,
+      "init_mod": 2,
+      "rank": "12",
+      "tags": ["fiend", "medium", "devil", "flying"],
+      "biomes": ["hells", "fortress"],
+      "icon": ""
+    },
+    {
+      "id": "horned-devil",
+      "name": "Horned Devil",
+      "side_default": "opponents",
+      "hp": 178,
+      "init_mod": 2,
+      "rank": "11",
+      "tags": ["fiend", "large", "devil", "flying"],
+      "biomes": ["hells", "mountains"],
+      "icon": ""
+    },
+    {
+      "id": "pit-fiend",
+      "name": "Pit Fiend",
+      "side_default": "opponents",
+      "hp": 300,
+      "init_mod": 2,
+      "rank": "20",
+      "tags": ["fiend", "large", "devil", "leader"],
+      "biomes": ["hells", "fortress"],
+      "icon": ""
+    },
+    {
+      "id": "nycaloth",
+      "name": "Nycaloth",
+      "side_default": "opponents",
+      "hp": 123,
+      "init_mod": 2,
+      "rank": "9",
+      "tags": ["fiend", "large", "yugoloth", "flying"],
+      "biomes": ["lower-planes", "battlefield"],
+      "icon": ""
+    },
+    {
+      "id": "ultroloth",
+      "name": "Ultroloth",
+      "side_default": "opponents",
+      "hp": 153,
+      "init_mod": 3,
+      "rank": "13",
+      "tags": ["fiend", "medium", "yugoloth", "caster", "leader"],
+      "biomes": ["lower-planes", "fortress"],
+      "icon": ""
+    }
+  ]
+}
