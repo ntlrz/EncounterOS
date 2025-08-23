@@ -27,6 +27,10 @@ Create blocks with speaker, text, and optional portrait path.
 Edit without sending live; Make Current (or F8) pushes block to overlay.
 Prep multiple blocks in advance.
 
+Rosters:
+Load multiple different JSON packs of characters that can be send directly to dialog or combat controls
+System-agnostic tag and rank system in place to easily sort between 
+
 Encounters:
 Save/load combat encounters and dialog sequences (JSON).
 Send saved encounters directly into Combat or Dialog queues.
@@ -39,9 +43,8 @@ Markdown scratchpad with live preview.
 Multiple files in /data/notes/, switchable from a dropdown.
 Autosaves while you type.
 
-Settings:
-Overlay auto-refresh toggle and poll interval.
-Change overlay theme (read from /themes/).
+Timer:
+Countdown and Stopwatch modes available currently.
 
 ### Overlay (Player View)
 Transparent window (captured via OBS Window Capture).
@@ -97,6 +100,8 @@ Double‑click a combatant → open editor
 │   │   ├── dialog/    
 
 │   └── notes/
+
+│   └── rosters/
 
 ├── themes
 
