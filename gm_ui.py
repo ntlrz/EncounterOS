@@ -1,8 +1,8 @@
-# gm_ui.py — EncounterOS GM UI (refreshed)
+# gm_ui.py — EncounterOS GM UI (consolidated)
 from __future__ import annotations
 import json, os
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 from datetime import datetime, timezone
 
 from PySide6 import QtWidgets, QtGui, QtCore
@@ -15,18 +15,21 @@ DIALOGMETA = APP_DIR/"dialog_meta.json"
 THEMES_DIR = APP_DIR/"themes"
 STATUS_DIR = APP_DIR/"icons"/"status"
 
-# Encounters storage
+# Encounters
 DATA_ROOT  = APP_DIR/"data"/"encounters"
 COMBAT_DIR = DATA_ROOT/"combat"
 DIALOG_DIR = DATA_ROOT/"dialog"
 COMBAT_DIR.mkdir(parents=True, exist_ok=True)
 DIALOG_DIR.mkdir(parents=True, exist_ok=True)
 
-# Log + Notes (vault)
+# Rosters
+ROSTERS_DIR = APP_DIR / "data" / "rosters"
+ROSTERS_DIR.mkdir(parents=True, exist_ok=True)
+
+# Log + Notes
 LOG_DIR = APP_DIR / "data"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOG_DIR / "session.log"
-
 VAULT_DIR  = APP_DIR / "data" / "notes"
 VAULT_DIR.mkdir(parents=True, exist_ok=True)
 DEFAULT_NOTE = VAULT_DIR / "notes.md"
@@ -49,7 +52,58 @@ def write_dialog_txt(blocks: List[str]):
     text = "\n\n".join(b.strip() for b in blocks if b.strip())
     DIALOG_FP.write_text(text, encoding="utf-8")
 
-# ---------- GM UI light/dark ----------
+def _collect_suffixes(base_name: str, names: List[str]) -> set:
+    base = base_name.strip(); out = set()
+    for n in names:
+        if n == base: out.add("")
+        if n.startswith(base + " "):
+            tail = n[len(base)+1:].strip()
+            if tail: out.add(tail)
+    return out
+
+def _next_suffix(not_in: set) -> str:
+    for i in range(26):
+        s = chr(65+i)
+        if s not in not_in: return s
+    k = 1
+    while True:
+        s = f"A{k}"
+        if s not in not_in: return s
+        k += 1
+
+# ---- rank helpers (system-agnostic) ----
+def _parse_rank(value) -> Tuple[float, str]:
+    if value is None: return 0.0, "0"
+    if isinstance(value, (int, float)):
+        v = float(value); txt = str(int(v)) if v.is_integer() else str(v)
+        return v, txt
+    s = str(value).strip()
+    if not s: return 0.0, "0"
+    if "/" in s:
+        try:
+            num, den = s.split("/", 1)
+            v = float(num)/float(den)
+            return v, s
+        except Exception:
+            pass
+    try:
+        v = float(s); txt = str(int(v)) if float(v).is_integer() else s
+        return v, txt
+    except Exception:
+        return 0.0, s
+
+_RANK_LABEL_MAP = {
+    "5e": "CR", "2024srd": "CR", "pf2e": "Level", "osr": "HD",
+    "swade": "Rank", "gurps": "Points", "custom": "Rank",
+}
+def _rank_label_for_pack(system: str | None, pack_rank_label: str | None) -> str:
+    if pack_rank_label and str(pack_rank_label).strip():
+        return str(pack_rank_label).strip()
+    if system:
+        return _RANK_LABEL_MAP.get(str(system).strip().lower(), "Rank")
+    return "Rank"
+
+# ---------- QSS ----------
 DARK_QSS = """
 QWidget { background-color: #1d1f23; color: #e6e6e6; }
 QLineEdit, QPlainTextEdit, QTextEdit, QSpinBox, QDoubleSpinBox, QComboBox, QListWidget {
@@ -87,7 +141,7 @@ class GMWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("EncounterOS — GM")
-        self.resize(1220, 820)
+        self.resize(1220, 840)
 
         cfg0 = safe_json(CONFIG_FP, {})
         self.theme_name   = cfg0.get("theme", "gm-modern")
@@ -95,10 +149,10 @@ class GMWindow(QtWidgets.QMainWindow):
         self.poll_ms      = max(100, int(cfg0.get("poll_ms", 200)))
         self.ui_dark      = bool(cfg0.get("ui_dark", True))
 
-        self.mode = "combat"   # "combat" | "dialog"
+        self.mode = "combat"         # "combat" | "dialog"
         self.overlay_on = False
 
-        # Live models
+        # live models
         self.combatants: List[Dict] = []
         self.turn_index: int = -1
         self.round: int = 1
@@ -109,11 +163,9 @@ class GMWindow(QtWidgets.QMainWindow):
 
         self._status_catalog = self._load_status_catalog()
 
-        # Menubar + topbar
         self._build_menubar()
         self._build_topbar()
 
-        # Split main area
         split = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
         self._left_cockpit = self._build_mvp_cockpit()
         self._right_dock   = self._build_advanced_dock()
@@ -132,12 +184,12 @@ class GMWindow(QtWidgets.QMainWindow):
 
         # Shortcuts
         QtGui.QShortcut(QtGui.QKeySequence("F4"), self, activated=self._toggle_overlay_hotkey)
-        QtGui.QShortcut(QtGui.QKeySequence("F5"), self, activated=self._advance)  # context: combat/dialog
+        QtGui.QShortcut(QtGui.QKeySequence("F5"), self, activated=self._advance)
         QtGui.QShortcut(QtGui.QKeySequence("F7"), self, activated=self._prev)
         QtGui.QShortcut(QtGui.QKeySequence("F6"), self, activated=self._toggle_mode)
         QtGui.QShortcut(QtGui.QKeySequence("/"),  self, activated=self._focus_active_search)
         QtGui.QShortcut(QtGui.QKeySequence("Ctrl+Return"), self, activated=self._add_dialog_block)
-        QtGui.QShortcut(QtGui.QKeySequence("F8"), self, activated=self._dialog_make_current)  # explicit push live
+        QtGui.QShortcut(QtGui.QKeySequence("F8"), self, activated=self._dialog_make_current)
 
         # Overlay link
         self.overlay_win: Optional[QtWidgets.QWidget] = None
@@ -149,7 +201,7 @@ class GMWindow(QtWidgets.QMainWindow):
             print("[gm_ui] tracker_overlay import problem:", e)
             self._OverlayClass = None
 
-        # initial write
+        # initial sync
         self._sync_topbar()
         self._persist_all()
 
@@ -176,17 +228,13 @@ class GMWindow(QtWidgets.QMainWindow):
 
         # Overlay
         mOverlay = mb.addMenu("&Overlay")
-        actReload = mOverlay.addAction("Reload Now")
-        actReload.triggered.connect(self._reload_now)
-
+        actReload = mOverlay.addAction("Reload Now"); actReload.triggered.connect(self._reload_now)
         self.actAutoRefresh = mOverlay.addAction("Auto Refresh")
         self.actAutoRefresh.setCheckable(True)
         self.actAutoRefresh.setChecked(self.auto_refresh)
         self.actAutoRefresh.toggled.connect(self._set_auto_refresh)
-
         actInterval = mOverlay.addAction("Set Refresh Interval…")
         actInterval.triggered.connect(self._set_poll_interval)
-
         self._themes_menu = mOverlay.addMenu("Theme")
         self._populate_themes_menu()
 
@@ -283,7 +331,6 @@ class GMWindow(QtWidgets.QMainWindow):
         self._toast(f"Auto-refresh {'ON' if on else 'OFF'}.")
 
     def _set_poll_interval(self):
-        # Positional args only (PySide6 compat)
         ms, ok = QtWidgets.QInputDialog.getInt(self, "Refresh Interval",
                                                "Milliseconds (>=100):",
                                                int(self.poll_ms), 100, 60000, 100)
@@ -329,7 +376,6 @@ class GMWindow(QtWidgets.QMainWindow):
 
         # Combat
         self.grpCombat = QtWidgets.QGroupBox("Combat Controls")
-        self.grpCombat.setCheckable(False)
         cv = QtWidgets.QVBoxLayout(self.grpCombat); cv.setSpacing(8)
 
         rowHud = QtWidgets.QHBoxLayout()
@@ -378,7 +424,6 @@ class GMWindow(QtWidgets.QMainWindow):
 
         # Dialog
         self.grpDialog = QtWidgets.QGroupBox("Dialog Controls")
-        self.grpDialog.setCheckable(False)
         dv = QtWidgets.QVBoxLayout(self.grpDialog); dv.setSpacing(8)
 
         rowDlgHud = QtWidgets.QHBoxLayout()
@@ -448,15 +493,31 @@ class GMWindow(QtWidgets.QMainWindow):
 
         return panel
 
-    def _build_advanced_dock(self) -> QtWidgets.QWidget:
-        tabs = QtWidgets.QTabWidget()
-        self._build_encounters_tab(tabs)
-        self._build_log_tab(tabs)
-        self._build_settings_tab(tabs)
-        self._build_notes_tab(tabs)
-        return tabs
+    # ---- uniform spinner wrapper (± buttons) ----
+    def _wrap_spin_with_nudgers(self, spin: QtWidgets.QAbstractSpinBox, step: float | None = None) -> QtWidgets.QWidget:
+        spin.setButtonSymbols(QtWidgets.QAbstractSpinBox.NoButtons)
+        if isinstance(spin, (QtWidgets.QSpinBox, QtWidgets.QDoubleSpinBox)) and step is not None:
+            spin.setSingleStep(step)
+        box = QtWidgets.QWidget()
+        h = QtWidgets.QHBoxLayout(box); h.setContentsMargins(0,0,0,0); h.setSpacing(4)
+        btnMinus = QtWidgets.QToolButton(); btnMinus.setText("−"); btnMinus.setFixedWidth(22)
+        btnPlus  = QtWidgets.QToolButton(); btnPlus.setText("+");  btnPlus.setFixedWidth(22)
+        h.addWidget(spin); h.addWidget(btnMinus); h.addWidget(btnPlus)
+        def _nudge(delta):
+            if isinstance(spin, QtWidgets.QDoubleSpinBox):
+                val = float(spin.value()) + (float(spin.singleStep()) * float(delta))
+                val = max(spin.minimum(), min(spin.maximum(), val))
+                old = spin.blockSignals(True); spin.setValue(val); spin.blockSignals(old)
+            else:
+                val = int(spin.value()) + (int(spin.singleStep()) * int(delta))
+                val = max(spin.minimum(), min(spin.maximum(), val))
+                old = spin.blockSignals(True); spin.setValue(val); spin.blockSignals(old)
+            spin.valueChanged.emit(spin.value())
+        btnMinus.clicked.connect(lambda: _nudge(-1))
+        btnPlus.clicked.connect(lambda: _nudge(+1))
+        return box
 
-    # ---------- Combat logic ----------
+    # ---------- Combat helpers ----------
     def _status_emojis(self, statuses):
         MAP = {
             "poisoned":"☠️", "stunned":"💫", "prone":"🛌", "blessed":"✨",
@@ -483,17 +544,14 @@ class GMWindow(QtWidgets.QMainWindow):
     def _refresh_combat_list(self):
         cur_rows = [i.row() for i in self.listCombat.selectedIndexes()]
         vbar = self.listCombat.verticalScrollBar(); vpos = vbar.value() if vbar else 0
-
         self.listCombat.clear()
         for m in self.combatants:
             QtWidgets.QListWidgetItem(self._combat_row_text(m), self.listCombat)
-
         if self.combatants:
             if self.turn_index < 0 or self.turn_index >= len(self.combatants):
                 self.turn_index = 0
         else:
             self.turn_index = -1; self.round = 1
-
         if cur_rows:
             for r in cur_rows:
                 if 0 <= r < self.listCombat.count():
@@ -502,7 +560,6 @@ class GMWindow(QtWidgets.QMainWindow):
                 self.listCombat.setCurrentRow(cur_rows[0])
         if vbar:
             QtCore.QTimer.singleShot(0, lambda: vbar.setValue(vpos))
-
         self._update_turn_label()
         self._on_combat_selection_changed(self.listCombat.currentRow())
 
@@ -554,7 +611,6 @@ class GMWindow(QtWidgets.QMainWindow):
         if not rows: return
         row = rows[0]; m = self.combatants[row]
         current = set([s for s in (m.get("statusEffects") or []) if isinstance(s,str)])
-
         dlg = QtWidgets.QDialog(self); dlg.setWindowTitle(f"Status — {m.get('name','')}")
         v = QtWidgets.QVBoxLayout(dlg)
         scroll = QtWidgets.QScrollArea(); scroll.setWidgetResizable(True)
@@ -568,7 +624,6 @@ class GMWindow(QtWidgets.QMainWindow):
         v.addWidget(scroll, 1)
         box = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok|QtWidgets.QDialogButtonBox.Cancel)
         v.addWidget(box); box.accepted.connect(dlg.accept); box.rejected.connect(dlg.reject)
-
         if dlg.exec() == QtWidgets.QDialog.Accepted:
             chosen = [cb.text() for cb in checks if cb.isChecked()]
             m["statusEffects"] = chosen
@@ -602,8 +657,7 @@ class GMWindow(QtWidgets.QMainWindow):
         if not rows: return
         row = rows[0]; data = dict(self.combatants[row])
         dlg = _CombatantEditor(self, data)
-        if dlg.exec() != QtWidgets.QDialog.Accepted:
-            return
+        if dlg.exec() != QtWidgets.QDialog.Accepted: return
         p = dlg.payload()
         m = self.combatants[row]
         m["name"] = p["name"]
@@ -652,21 +706,16 @@ class GMWindow(QtWidgets.QMainWindow):
     def _add_instances(self, base: Dict, count: int):
         base_name = base["name"]
         current_names = [c["name"] for c in self.combatants]
-
         def _is_base_match(n: str) -> bool:
             return (n == base_name) or n.startswith(base_name + " ")
-
         existing_idxs = [i for i, n in enumerate(current_names) if _is_base_match(n)]
         total_after = len(existing_idxs) + count
-
         if len(existing_idxs) == 1 and total_after >= 2:
             idx = existing_idxs[0]
             if self.combatants[idx]["name"] == base_name:
                 self.combatants[idx]["name"] = f"{base_name} A"
-
         current_names = [c["name"] for c in self.combatants]
         used = _collect_suffixes(base_name, current_names)
-
         for _ in range(max(1, count)):
             if total_after == 1 and len(existing_idxs) == 0:
                 name = base_name
@@ -675,44 +724,33 @@ class GMWindow(QtWidgets.QMainWindow):
                 name = f"{base_name} {suf}"
             inst = dict(base); inst["name"] = name
             self.combatants.append(inst)
-
         if self.turn_index < 0 and self.combatants: self.turn_index = 0
         self._refresh_combat_list()
         self._log(f"Added {count} × {base_name.split(' ')[0]}")
 
     # ---------- Dialog logic ----------
     def _dialog_prev_local(self):
-        if not self.dialog_blocks:
-            return
-        if self.dialog_index < 0:
-            self.dialog_index = 0
-        else:
-            self.dialog_index = max(self.dialog_index - 1, 0)
+        if not self.dialog_blocks: return
+        if self.dialog_index < 0: self.dialog_index = 0
+        else: self.dialog_index = max(self.dialog_index - 1, 0)
         self._persist_config()
-        self._highlight_dialog_current()
-        self._update_dialog_hud()
+        self._highlight_dialog_current(); self._update_dialog_hud()
         self._log(f"Dialog ← {self.dialog_index+1}/{len(self.dialog_blocks)}")
 
     def _dialog_next_local(self):
-        if not self.dialog_blocks:
-            return
-        if self.dialog_index < 0:
-            self.dialog_index = 0
-        else:
-            self.dialog_index = min(self.dialog_index + 1, len(self.dialog_blocks) - 1)
+        if not self.dialog_blocks: return
+        if self.dialog_index < 0: self.dialog_index = 0
+        else: self.dialog_index = min(self.dialog_index + 1, len(self.dialog_blocks) - 1)
         self._persist_config()
-        self._highlight_dialog_current()
-        self._update_dialog_hud()
+        self._highlight_dialog_current(); self._update_dialog_hud()
         self._log(f"Dialog → {self.dialog_index+1}/{len(self.dialog_blocks)}")
 
     def _dialog_make_current(self):
         row = self.listDialog.currentRow()
-        if row < 0 or row >= len(self.dialog_blocks):
-            return
+        if row < 0 or row >= len(self.dialog_blocks): return
         self.dialog_index = row
         self._persist_config()
-        self._highlight_dialog_current()
-        self._update_dialog_hud()
+        self._highlight_dialog_current(); self._update_dialog_hud()
         self._log(f"Dialog → set current to {self.dialog_index+1}/{len(self.dialog_blocks)}")
 
     def _new_dialog_block(self):
@@ -722,14 +760,11 @@ class GMWindow(QtWidgets.QMainWindow):
         self.listDialog.clearSelection()
 
     def _on_dialog_row_changed(self, row: int):
-        # Selection is for editing only — does not change live overlay
         if row < 0 or row >= len(self.dialog_blocks):
             self._dialog_edit_row = None
             self._clear_dialog_editor_fields()
             self.btnAddDialog.setText("Add to Queue (Ctrl+Enter)")
-            self._update_dialog_hud()
-            return
-
+            self._update_dialog_hud(); return
         self._dialog_edit_row = row
         b = self.dialog_blocks[row]
         self.edSpeaker.setText(b.get("speaker",""))
@@ -752,7 +787,6 @@ class GMWindow(QtWidgets.QMainWindow):
         raw_text = self.edText.toPlainText().strip()
         portrait = self.edPortrait.text().strip()
         if not raw_text: return
-
         if self._dialog_edit_row is not None:
             blk = {"speaker": speaker, "text": raw_text, "portrait": portrait}
             self.dialog_blocks[self._dialog_edit_row] = blk
@@ -765,16 +799,13 @@ class GMWindow(QtWidgets.QMainWindow):
             self.listDialog.clearSelection()
             self._update_dialog_hud()
             return
-
         paragraphs = [p.strip() for p in raw_text.split("\n\n") if p.strip()]
         for para in paragraphs:
             self.dialog_blocks.append({"speaker": speaker, "text": para, "portrait": portrait})
             if self.dialog_index < 0: self.dialog_index = 0
-
         self._refresh_dialog_list()
         if self.dialog_blocks:
             self.listDialog.setCurrentRow(len(self.dialog_blocks) - 1)
-
         self._persist_dialog_all()
         self.btnAddDialog.setText("Add to Queue (Ctrl+Enter)")
         self._clear_dialog_editor_fields()
@@ -798,7 +829,6 @@ class GMWindow(QtWidgets.QMainWindow):
         for i, b in enumerate(self.dialog_blocks, start=1):
             label = f"{i}. {(b.get('speaker') or 'Narrator')}: {b.get('text','')[:50]}"
             item = QtWidgets.QListWidgetItem(label, self.listDialog)
-            # Bold the live/current block
             if (i - 1) == self.dialog_index:
                 f = item.font(); f.setBold(True); item.setFont(f)
         self._highlight_dialog_current(); self._update_dialog_hud()
@@ -813,17 +843,315 @@ class GMWindow(QtWidgets.QMainWindow):
         sp  = self.dialog_blocks[self.dialog_index].get("speaker") if 0 <= self.dialog_index < total else "—"
         self.lblDialogHud.setText(f"{idx} / {total} — Speaker: {sp or 'Narrator'}")
 
+    # ---------- Advanced dock ----------
+    def _build_advanced_dock(self) -> QtWidgets.QWidget:
+        tabs = QtWidgets.QTabWidget()
+        # Roster first
+        try:
+            self._build_roster_tab(tabs)
+        except Exception as e:
+            holder = QtWidgets.QWidget(); v = QtWidgets.QVBoxLayout(holder)
+            lab = QtWidgets.QLabel(f"Roster failed: {e}"); lab.setWordWrap(True); v.addWidget(lab)
+            tabs.addTab(holder, "Roster (error)")
+            try: self._log(f"Roster tab failed: {e}")
+            except Exception: pass
+
+        self._build_encounters_tab(tabs)
+        self._build_log_tab(tabs)
+        self._build_notes_tab(tabs)
+        self._build_timers_tab(tabs)
+        return tabs
+
+    # ---------- Roster tab ----------
+    def _build_roster_tab(self, tabs: QtWidgets.QTabWidget):
+        page = QtWidgets.QWidget()
+        split = QtWidgets.QSplitter(QtCore.Qt.Horizontal, page)
+
+        # Left: packs
+        left = QtWidgets.QWidget(); lv = QtWidgets.QVBoxLayout(left); lv.setContentsMargins(8,8,8,8); lv.setSpacing(8)
+        hdr = QtWidgets.QHBoxLayout()
+        hdr.addWidget(QtWidgets.QLabel("Packs")); hdr.addStretch(1)
+        self.btnRosterRefresh = QtWidgets.QPushButton("Refresh"); hdr.addWidget(self.btnRosterRefresh)
+        lv.addLayout(hdr)
+        self.listRosterPacks = QtWidgets.QListWidget()
+        self.listRosterPacks.setSelectionMode(QtWidgets.QAbstractItemView.NoSelection)
+        lv.addWidget(self.listRosterPacks, 1)
+
+        # Right: filters + results + add
+        right = QtWidgets.QWidget(); rv = QtWidgets.QVBoxLayout(right); rv.setContentsMargins(8,8,8,8); rv.setSpacing(8)
+
+        flt = QtWidgets.QHBoxLayout()
+        self.edRosterSearch = QtWidgets.QLineEdit(); self.edRosterSearch.setPlaceholderText("Search name or id…")
+        self.cmbRosterSideFilter = QtWidgets.QComboBox(); self.cmbRosterSideFilter.addItems(["All","Allies","Opponents"])
+        self.edRosterTags = QtWidgets.QLineEdit(); self.edRosterTags.setPlaceholderText("Tags (comma-separated)")
+        self.spnRosterCRMin = QtWidgets.QDoubleSpinBox(); self.spnRosterCRMin.setRange(0.0, 30.0); self.spnRosterCRMin.setSingleStep(0.25); self.spnRosterCRMin.setValue(0.0)
+        self.spnRosterCRMax = QtWidgets.QDoubleSpinBox(); self.spnRosterCRMax.setRange(0.0, 30.0); self.spnRosterCRMax.setSingleStep(0.25); self.spnRosterCRMax.setValue(30.0)
+        flt.addWidget(QtWidgets.QLabel("Find:")); flt.addWidget(self.edRosterSearch, 1)
+        flt.addSpacing(8)
+        flt.addWidget(QtWidgets.QLabel("Side:")); flt.addWidget(self.cmbRosterSideFilter)
+        flt.addSpacing(8)
+        flt.addWidget(QtWidgets.QLabel("Include tags:")); flt.addWidget(self.edRosterTags, 1)
+        flt.addSpacing(8)
+        flt.addWidget(QtWidgets.QLabel("Rank:"))
+        flt.addWidget(self._wrap_spin_with_nudgers(self.spnRosterCRMin))
+        flt.addWidget(QtWidgets.QLabel("to"))
+        flt.addWidget(self._wrap_spin_with_nudgers(self.spnRosterCRMax))
+        rv.addLayout(flt)
+
+        self.listRosterResults = QtWidgets.QListWidget()
+        self.listRosterResults.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+        self.listRosterResults.setUniformItemSizes(True)
+        self.listRosterResults.setVerticalScrollMode(QtWidgets.QAbstractItemView.ScrollPerPixel)
+        rv.addWidget(self.listRosterResults, 1)
+
+        ctrls = QtWidgets.QHBoxLayout()
+        self.cmbRosterSide = QtWidgets.QComboBox(); self.cmbRosterSide.addItems(["default","allies","opponents"])
+        self.spnRosterCount = QtWidgets.QSpinBox(); self.spnRosterCount.setRange(1, 20); self.spnRosterCount.setValue(1)
+        self.btnRosterToDialog = QtWidgets.QPushButton("Send to Dialog")
+        self.btnRosterAdd   = QtWidgets.QPushButton("Add to Combat")
+        ctrls.addWidget(QtWidgets.QLabel("Side override:"));  ctrls.addWidget(self.cmbRosterSide)
+        ctrls.addSpacing(10)
+        ctrls.addWidget(QtWidgets.QLabel("Count:")); ctrls.addWidget(self._wrap_spin_with_nudgers(self.spnRosterCount))
+        ctrls.addStretch(1)
+        ctrls.addWidget(self.btnRosterToDialog)
+        ctrls.addWidget(self.btnRosterAdd)
+        rv.addLayout(ctrls)
+
+        split.addWidget(left); split.addWidget(right)
+        split.setStretchFactor(0, 1); split.setStretchFactor(1, 2)
+
+        lay = QtWidgets.QVBoxLayout(page); lay.setContentsMargins(0,0,0,0); lay.addWidget(split)
+        tabs.addTab(page, "Roster")
+
+        # Data + wiring
+        self._roster_packs: list[dict] = []
+        self._roster_flat: list[dict] = []
+        self._refresh_roster_packs()
+
+        self.btnRosterRefresh.clicked.connect(self._refresh_roster_packs)
+        self.edRosterSearch.textChanged.connect(self._refresh_roster_results)
+        self.listRosterPacks.itemChanged.connect(self._refresh_roster_results)
+        self.cmbRosterSideFilter.currentIndexChanged.connect(self._refresh_roster_results)
+        self.edRosterTags.textChanged.connect(self._refresh_roster_results)
+        self.spnRosterCRMin.valueChanged.connect(lambda _: (self._ensure_rank_bounds(self.spnRosterCRMin), self._refresh_roster_results()))
+        self.spnRosterCRMax.valueChanged.connect(lambda _: (self._ensure_rank_bounds(self.spnRosterCRMax), self._refresh_roster_results()))
+        self.btnRosterAdd.clicked.connect(self._roster_add_selected)
+        self.btnRosterToDialog.clicked.connect(self._roster_send_to_dialog_selected)
+        self.listRosterResults.itemDoubleClicked.connect(lambda _: self._roster_add_selected())
+
+    def _enabled_pack_ids(self) -> set[str]:
+        ids = set()
+        for idx, pack in enumerate(self._roster_packs):
+            item = self.listRosterPacks.item(idx)
+            if item and item.checkState() == QtCore.Qt.Checked:
+                ids.add(pack.get("pack_id",""))
+        return ids
+
+    def _refresh_roster_packs(self):
+        self._roster_packs = self._load_roster_packs()
+        self.listRosterPacks.blockSignals(True)
+        self.listRosterPacks.clear()
+        for pack in self._roster_packs:
+            it = QtWidgets.QListWidgetItem(f"{pack.get('name','(unnamed)')}  [{pack.get('pack_id','?')}]")
+            it.setFlags(it.flags() | QtCore.Qt.ItemIsUserCheckable)
+            it.setCheckState(QtCore.Qt.Checked)
+            self.listRosterPacks.addItem(it)
+        self.listRosterPacks.blockSignals(False)
+        self._refresh_roster_results()
+
+    def _refresh_roster_results(self):
+        enabled = self._enabled_pack_ids()
+        query = (self.edRosterSearch.text() or "").strip().lower()
+        side_mode = self.cmbRosterSideFilter.currentText()  # "All" | "Allies" | "Opponents"
+        raw_tags = (self.edRosterTags.text() or "").strip().lower()
+        tag_tokens = [t.strip() for t in raw_tags.split(",") if t.strip()]
+        rmin = float(self.spnRosterCRMin.value())
+        rmax = float(self.spnRosterCRMax.value())
+
+        self._roster_flat = self._filter_roster(self._roster_packs, enabled, query, side_mode, tag_tokens, rmin, rmax)
+
+        self.listRosterResults.clear()
+        for e in self._roster_flat:
+            name = e.get("name","?")
+            pid  = e.get("pack_id","?")
+            rid  = e.get("id","?")
+            label = e.get("rank_label", "Rank")
+            rtxt  = e.get("rank_text", "")
+            # Compact row
+            core = f"{name}"
+            rankbit = f"  • {label} {rtxt}" if rtxt != "" else ""
+            bracket = f"   [{pid}:{rid}]"
+            item = QtWidgets.QListWidgetItem(core + rankbit + bracket, self.listRosterResults)
+            # Tooltip (side, HP, tags)
+            side = e.get("side_default", "opponents")
+            hp   = e.get("hp", "?")
+            tags = ", ".join(e.get("tags", []))
+            tt = [f"<b>{name}</b>", f"{label}: {rtxt}" if rtxt != "" else None,
+                  f"Pack: {pid}", f"ID: {rid}", f"Side (default): {side}", f"HP (default): {hp}",
+                  f"Tags: {tags}" if tags else None]
+            item.setToolTip("<br>".join([t for t in tt if t]))
+
+    def _filter_roster(self, packs: list[dict], enabled_pack_ids: set[str], query: str,
+                       side_mode: str = "All", tag_tokens: list[str] = None,
+                       rank_min: float = 0.0, rank_max: float = 30.0) -> list[dict]:
+        tag_tokens = tag_tokens or []
+        out = []
+        for p in packs:
+            if p.get("pack_id") not in enabled_pack_ids:
+                continue
+            for e in p.get("entries", []):
+                side = e.get("side_default","opponents").lower()
+                if side_mode == "Allies" and side != "allies": continue
+                if side_mode == "Opponents" and side != "opponents": continue
+                rv = float(e.get("rank_num", 0.0))
+                if not (rank_min <= rv <= rank_max): continue
+                etags = [t.lower() for t in (e.get("tags", []) or [])]
+                if tag_tokens and not all(t in etags for t in tag_tokens): continue
+                if query:
+                    hay = " ".join([
+                        str(e.get("name","")).lower(),
+                        str(e.get("id","")).lower(),
+                        " ".join(etags),
+                        side,
+                        str(e.get("hp","")).lower(),
+                        str(e.get("rank_text","")).lower(),
+                    ])
+                    if query not in hay: continue
+                out.append(e)
+        out.sort(key=lambda e: (e.get("name","").lower(), f"{e.get('pack_id','')}:{e.get('id','')}"))
+        return out
+
+    def _load_roster_packs(self) -> list[dict]:
+        packs = []
+        if not ROSTERS_DIR.exists():
+            self._log("Roster: folder missing — creating.")
+            try: ROSTERS_DIR.mkdir(parents=True, exist_ok=True)
+            except Exception: pass
+            return packs
+        for fp in sorted(ROSTERS_DIR.glob("*.json")):
+            try:
+                data = json.loads(fp.read_text(encoding="utf-8"))
+                pid  = str(data.get("pack_id") or fp.stem)
+                name = str(data.get("name") or pid)
+                system = str(data.get("system","")).strip().lower() or None
+                pack_rank_label = data.get("rank_label")
+                pack_rank_label_display = _rank_label_for_pack(system, pack_rank_label)
+                entries = data.get("entries", [])
+                if not isinstance(entries, list): raise ValueError("entries must be a list")
+                norm = []
+                for e in entries:
+                    try:
+                        rid = str(e.get("id") or _slug(e.get("name","entry")))
+                        tags = e.get("tags", [])
+                        if isinstance(tags, str):
+                            tags = [t.strip() for t in tags.split(",") if t.strip()]
+                        elif not isinstance(tags, list):
+                            tags = []
+                        biomes = e.get("biomes", [])
+                        if isinstance(biomes, str):
+                            biomes = [t.strip() for t in biomes.split(",") if t.strip()]
+                        elif not isinstance(biomes, list):
+                            biomes = []
+                        seen=set(); norm_tags=[]
+                        for t in [*tags, *biomes]:
+                            k=str(t).strip()
+                            if not k: continue
+                            kl=k.lower()
+                            if kl not in seen:
+                                seen.add(kl); norm_tags.append(k)
+                        e_system = str(e.get("system","")).strip().lower() or system
+                        e_rank_label = e.get("rank_label")
+                        label_display = _rank_label_for_pack(e_system, e_rank_label)
+                        rank_val, rank_txt = _parse_rank(e.get("rank", 0))
+                        norm.append({
+                            "pack_id": pid,
+                            "id": rid,
+                            "name": str(e.get("name") or rid),
+                            "side_default": str(e.get("side_default","opponents")),
+                            "hp": int(e.get("hp", 10)),
+                            "icon": str(e.get("icon","")),
+                            "init_mod": int(e.get("init_mod", 0)),
+                            "status_defaults": list(e.get("status_defaults", [])),
+                            "tags": norm_tags,
+                            "rank_num": float(rank_val),
+                            "rank_text": rank_txt,
+                            "rank_label": label_display,
+                        })
+                    except Exception as ie:
+                        self._log(f"Roster: skipping bad entry in {fp.name}: {ie}")
+                packs.append({"pack_id": pid, "name": name, "entries": norm,
+                              "system": system, "rank_label": pack_rank_label_display})
+            except Exception as ex:
+                self._log(f"Roster: failed to load {fp.name}: {ex}")
+        return packs
+
+    def _add_roster_entry(self, entry: dict, count: int, side_override: str | None = None):
+        side = (side_override or entry.get("side_default","opponents")).strip().lower()
+        base = {
+            "name": entry.get("name","Unnamed"),
+            "isEnemy": (side == "opponents"),
+            "maxHP": int(entry.get("hp", 10)),
+            "currentHP": int(entry.get("hp", 10)),
+            "icon": entry.get("icon",""),
+            "statusEffects": list(entry.get("status_defaults", [])),
+            "initiative": int(entry.get("init_mod", 0))
+        }
+        self._add_instances(base, max(1, int(count)))
+        self._persist_party()
+
+    def _roster_add_selected(self):
+        row = self.listRosterResults.currentRow()
+        if row < 0 or row >= len(self._roster_flat):
+            self._toast("Select a roster entry first."); return
+        entry = self._roster_flat[row]
+        count = int(self.spnRosterCount.value())
+        side_sel = self.cmbRosterSide.currentText()
+        side_override = None if side_sel == "default" else side_sel
+        self._add_roster_entry(entry, count, side_override)
+        self._toast(f"Added {count} × {entry.get('name','?')} to Combat")
+        self._log(f"Roster → Added {count} × {entry.get('name','?')}")
+
+    def _roster_send_to_dialog_selected(self):
+        row = self.listRosterResults.currentRow()
+        if row < 0 or row >= len(self._roster_flat):
+            self._toast("Select a roster entry first."); return
+        e = self._roster_flat[row]
+        speaker = e.get("name", "").strip()
+        portrait = (e.get("icon", "") or "").strip()
+        self._dialog_edit_row = None
+        self.edSpeaker.setText(speaker)
+        self.edPortrait.setText(portrait)
+        self.edText.clear()
+        self.btnAddDialog.setText("Add to Queue (Ctrl+Enter)")
+        self.edText.setFocus()
+        self._log(f"Roster → Prepared dialog block for '{speaker}' with portrait='{portrait or '(none)'}'")
+        self._toast(f"Prepared dialog block for “{speaker}”.")
+
+    def _ensure_rank_bounds(self, changed_spin=None):
+        try:
+            rmin = float(self.spnRosterCRMin.value())
+            rmax = float(self.spnRosterCRMax.value())
+        except Exception:
+            return
+        if rmin > rmax:
+            if changed_spin is self.spnRosterCRMin:
+                old = self.spnRosterCRMax.blockSignals(True)
+                self.spnRosterCRMax.setValue(rmin)
+                self.spnRosterCRMax.blockSignals(old)
+            else:
+                old = self.spnRosterCRMin.blockSignals(True)
+                self.spnRosterCRMin.setValue(rmax)
+                self.spnRosterCRMin.blockSignals(old)
+
     # ---------- Encounters tab ----------
     def _build_encounters_tab(self, tabs: QtWidgets.QTabWidget):
         page = QtWidgets.QWidget()
         split = QtWidgets.QSplitter(QtCore.Qt.Horizontal, page)
-
         left = QtWidgets.QWidget(); lv = QtWidgets.QVBoxLayout(left); lv.setContentsMargins(8,8,8,8)
         self.listEncCombat = QtWidgets.QListWidget()
         self.listEncDialog = QtWidgets.QListWidget()
         lv.addWidget(QtWidgets.QLabel("Saved Combat Encounters")); lv.addWidget(self.listEncCombat, 1)
         lv.addWidget(QtWidgets.QLabel("Saved Dialog Encounters")); lv.addWidget(self.listEncDialog, 1)
-
         right = QtWidgets.QWidget(); rv = QtWidgets.QVBoxLayout(right); rv.setContentsMargins(8,8,8,8)
         self.btnSaveCombat = QtWidgets.QPushButton("Save Current Combat…")
         self.btnSaveDialog = QtWidgets.QPushButton("Save Current Dialog…")
@@ -831,18 +1159,14 @@ class GMWindow(QtWidgets.QMainWindow):
         self.btnSendDialog = QtWidgets.QPushButton("Send Selected Dialog 💬")
         rv.addWidget(self.btnSaveCombat); rv.addWidget(self.btnSaveDialog)
         rv.addStretch(1); rv.addWidget(self.btnSendCombat); rv.addWidget(self.btnSendDialog)
-
         split.addWidget(left); split.addWidget(right)
         split.setStretchFactor(0,1); split.setStretchFactor(1,1)
-
         lay = QtWidgets.QVBoxLayout(page); lay.setContentsMargins(0,0,0,0); lay.addWidget(split)
         tabs.addTab(page, "Encounters")
-
         self.btnSaveCombat.clicked.connect(self._save_current_combat)
         self.btnSaveDialog.clicked.connect(self._save_current_dialog)
         self.btnSendCombat.clicked.connect(self._send_selected_combat)
         self.btnSendDialog.clicked.connect(self._send_selected_dialog)
-
         self._refresh_encounters_lists()
 
     def _refresh_encounters_lists(self):
@@ -935,18 +1259,15 @@ class GMWindow(QtWidgets.QMainWindow):
     # ---------- Log tab ----------
     def _build_log_tab(self, tabs: QtWidgets.QTabWidget):
         page = QtWidgets.QWidget()
-        v = QtWidgets.QVBoxLayout(page); v.setContentsMargins(8,8,8,8)
+        v = QtWidgets.QVBoxLayout(page); v.setContentsMargins(8,8,8,8); v.setSpacing(8)
         self.listLog = QtWidgets.QListWidget()
         v.addWidget(self.listLog, 1)
-
         if LOG_FILE.exists():
             try:
                 for line in LOG_FILE.read_text(encoding="utf-8").splitlines()[-300:]:
                     self.listLog.addItem(line)
                 self.listLog.scrollToBottom()
-            except Exception:
-                pass
-
+            except Exception: pass
         tabs.addTab(page, "Log")
 
     def _log(self, msg: str):
@@ -954,68 +1275,17 @@ class GMWindow(QtWidgets.QMainWindow):
         line = f"[{ts}] {msg}"
         if hasattr(self, "listLog") and self.listLog is not None:
             self.listLog.addItem(line)
-            if self.listLog.count() > 500:
-                self.listLog.takeItem(0)
+            if self.listLog.count() > 500: self.listLog.takeItem(0)
             self.listLog.scrollToBottom()
         try:
             with LOG_FILE.open("a", encoding="utf-8") as f:
                 f.write(line + "\n")
-        except Exception:
-            pass
+        except Exception: pass
 
-    # ---------- Settings tab ----------
-    def _build_settings_tab(self, tabs: QtWidgets.QTabWidget):
-        page = QtWidgets.QWidget()
-        f = QtWidgets.QFormLayout(page); f.setContentsMargins(12,12,12,12)
-
-        self.cmbThemeSettings = QtWidgets.QComboBox()
-        names=[]
-        try:
-            if THEMES_DIR.exists():
-                for p in sorted(THEMES_DIR.iterdir()):
-                    if p.is_dir() and (p/"theme.json").exists(): names.append(p.name)
-        except Exception:
-            pass
-        if not names:
-            names = [self.theme_name] if self.theme_name else ["gm-modern"]
-        self.cmbThemeSettings.addItems(names)
-        self.cmbThemeSettings.setCurrentText(self.theme_name)
-        self.cmbThemeSettings.currentTextChanged.connect(self._set_theme_from_settings)
-        f.addRow("Overlay Theme", self.cmbThemeSettings)
-
-        self.chkAutoRefresh = QtWidgets.QCheckBox("Enable")
-        self.chkAutoRefresh.setChecked(self.auto_refresh)
-        self.chkAutoRefresh.toggled.connect(self._set_auto_refresh)
-        f.addRow("Auto Refresh", self.chkAutoRefresh)
-
-        row = QtWidgets.QHBoxLayout()
-        self.spnInterval = QtWidgets.QSpinBox(); self.spnInterval.setRange(100, 60000); self.spnInterval.setSingleStep(100)
-        self.spnInterval.setValue(int(self.poll_ms))
-        btnApply = QtWidgets.QPushButton("Apply")
-        row.addWidget(self.spnInterval, 1); row.addWidget(btnApply)
-        btnApply.clicked.connect(self._apply_interval_from_settings)
-        f.addRow("Refresh (ms)", row)
-
-        tabs.addTab(page, "Settings")
-
-    def _set_theme_from_settings(self, name: str):
-        if not name: return
-        if hasattr(self, "cmbTheme"):
-            old = self.cmbTheme.blockSignals(True)
-            self.cmbTheme.setCurrentText(name)
-            self.cmbTheme.blockSignals(old)
-        self._set_theme_from_combo(name)
-
-    def _apply_interval_from_settings(self):
-        self.poll_ms = int(self.spnInterval.value())
-        self._persist_config()
-        self._toast(f"Refresh interval set to {self.poll_ms} ms.")
-
-    # ---------- Notes (Markdown vault) ----------
+    # ---------- Notes (Markdown) ----------
     def _build_notes_tab(self, tabs: QtWidgets.QTabWidget):
         page = QtWidgets.QWidget()
         v = QtWidgets.QVBoxLayout(page); v.setContentsMargins(8,8,8,8); v.setSpacing(8)
-
         top = QtWidgets.QHBoxLayout()
         self.selNotes = QtWidgets.QComboBox(); self.selNotes.setMinimumWidth(220)
         self.btnNoteNew    = QtWidgets.QPushButton("New")
@@ -1024,48 +1294,29 @@ class GMWindow(QtWidgets.QMainWindow):
         self.btnNoteOpen   = QtWidgets.QPushButton("Open")
         top.addWidget(QtWidgets.QLabel("File:"))
         top.addWidget(self.selNotes, 1)
-        top.addWidget(self.btnNoteNew)
-        top.addWidget(self.btnNoteRename)
-        top.addWidget(self.btnNoteDelete)
-        top.addWidget(self.btnNoteOpen)
+        top.addWidget(self.btnNoteNew); top.addWidget(self.btnNoteRename)
+        top.addWidget(self.btnNoteDelete); top.addWidget(self.btnNoteOpen)
         v.addLayout(top)
-
         split = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
         self.edNotes = QtWidgets.QPlainTextEdit()
         self.edNotes.setPlaceholderText("# Session notes…\n\n- Use **Markdown** here\n- Autosaves to data/notes/")
         self.edNotes.textChanged.connect(self._notes_changed)
-
-        self.prevNotes = QtWidgets.QTextEdit()
-        self.prevNotes.setReadOnly(True)
-        self.prevNotes.setAcceptRichText(True)
-
-        split.addWidget(self.edNotes)
-        split.addWidget(self.prevNotes)
-        split.setStretchFactor(0, 3)
-        split.setStretchFactor(1, 2)
+        self.prevNotes = QtWidgets.QTextEdit(); self.prevNotes.setReadOnly(True); self.prevNotes.setAcceptRichText(True)
+        split.addWidget(self.edNotes); split.addWidget(self.prevNotes)
+        split.setStretchFactor(0, 3); split.setStretchFactor(1, 2)
         v.addWidget(split, 1)
-
         tabs.addTab(page, "Notes")
-
-        self._notes_timer = QtCore.QTimer(self)
-        self._notes_timer.setSingleShot(True)
-        self._notes_timer.setInterval(600)
-
+        self._notes_timer = QtCore.QTimer(self); self._notes_timer.setSingleShot(True); self._notes_timer.setInterval(600)
         self.selNotes.currentTextChanged.connect(self._notes_file_selected)
         self.btnNoteNew.clicked.connect(self._notes_new_file)
         self.btnNoteRename.clicked.connect(self._notes_rename_file)
         self.btnNoteDelete.clicked.connect(self._notes_delete_file)
-        self.btnNoteOpen.clicked.connect(
-            lambda: QtGui.QDesktopServices.openUrl(
-                QtCore.QUrl.fromLocalFile(str(self._notes_current_path))
-            )
-        )
-
+        self.btnNoteOpen.clicked.connect(lambda: QtGui.QDesktopServices.openUrl(QtCore.QUrl.fromLocalFile(str(self._notes_current_path))))
         self._notes_refresh_list()
-        if not DEFAULT_NOTE.exists():
-            DEFAULT_NOTE.write_text("# Notes\n\n", encoding="utf-8")
+        if not DEFAULT_NOTE.exists(): DEFAULT_NOTE.write_text("# Notes\n\n", encoding="utf-8")
         self._notes_open_file(DEFAULT_NOTE)
 
+        # ===== Notes helpers (add below _build_notes_tab) =====
     def _notes_refresh_list(self):
         names = [p.name for p in sorted(VAULT_DIR.glob("*.md"))]
         cur = getattr(self, "_notes_current_path", DEFAULT_NOTE)
@@ -1111,8 +1362,8 @@ class GMWindow(QtWidgets.QMainWindow):
             self.selNotes.setCurrentIndex(idx)
 
     def _notes_changed(self):
+        # debounce save/preview
         self._notes_timer.stop()
-        # Avoid multiple connections stacking
         try:
             self._notes_timer.timeout.disconnect()
         except Exception:
@@ -1130,6 +1381,7 @@ class GMWindow(QtWidgets.QMainWindow):
         self._notes_render_preview(txt)
 
     def _notes_render_preview(self, txt: str):
+        # Use Qt’s markdown renderer if available; fallback to plain text
         try:
             self.prevNotes.setMarkdown(txt)
         except Exception:
@@ -1187,6 +1439,131 @@ class GMWindow(QtWidgets.QMainWindow):
             return
         self._notes_open_file(DEFAULT_NOTE)
 
+
+        # ---------- Timers tab ----------
+    def _build_timers_tab(self, tabs: QtWidgets.QTabWidget):
+        page = QtWidgets.QWidget()
+        v = QtWidgets.QVBoxLayout(page); v.setContentsMargins(12,12,12,12); v.setSpacing(10)
+
+        modeRow = QtWidgets.QHBoxLayout()
+        self.cmbTimerMode = QtWidgets.QComboBox(); self.cmbTimerMode.addItems(["Countdown", "Stopwatch"])
+        self.cmbTimerMode.currentIndexChanged.connect(self._timer_mode_changed)
+        modeRow.addWidget(QtWidgets.QLabel("Mode:")); modeRow.addWidget(self.cmbTimerMode); modeRow.addStretch(1)
+        v.addLayout(modeRow)
+
+        self.lblTimerDisplay = QtWidgets.QLabel("00:00")
+        f = self.lblTimerDisplay.font(); f.setPointSizeF(max(24.0, f.pointSizeF() * 2.0)); f.setBold(True)
+        self.lblTimerDisplay.setFont(f); self.lblTimerDisplay.setAlignment(QtCore.Qt.AlignCenter)
+        v.addWidget(self.lblTimerDisplay)
+
+        grid = QtWidgets.QGridLayout()
+        self.spnTimerMin = QtWidgets.QSpinBox(); self.spnTimerMin.setRange(0, 600); self.spnTimerMin.setValue(2)
+        self.spnTimerSec = QtWidgets.QSpinBox(); self.spnTimerSec.setRange(0, 59);  self.spnTimerSec.setValue(0)
+        grid.addWidget(QtWidgets.QLabel("Minutes"), 0, 0)
+        grid.addWidget(self._wrap_spin_with_nudgers(self.spnTimerMin), 0, 1)
+        grid.addWidget(QtWidgets.QLabel("Seconds"), 1, 0)
+        grid.addWidget(self._wrap_spin_with_nudgers(self.spnTimerSec), 1, 1)
+        v.addLayout(grid)
+
+        presetRow = QtWidgets.QHBoxLayout()
+        for label, ms in [("1:00", 60_000), ("2:00", 120_000), ("5:00", 300_000), ("10:00", 600_000), ("+30s", 30_000), ("-30s", -30_000)]:
+            btn = QtWidgets.QPushButton(label); btn.clicked.connect(lambda _, d=ms: self._timer_preset(d))
+            presetRow.addWidget(btn)
+        presetRow.addStretch(1); v.addLayout(presetRow)
+
+        ctrl = QtWidgets.QHBoxLayout()
+        self.btnTimerStart = QtWidgets.QPushButton("Start")
+        self.btnTimerReset = QtWidgets.QPushButton("Reset")
+        self.chkTimerPublish = QtWidgets.QCheckBox("Publish to overlay state (config.json)")
+        self.btnTimerStart.clicked.connect(self._timer_start_pause)
+        self.btnTimerReset.clicked.connect(self._timer_reset)
+        ctrl.addWidget(self.btnTimerStart); ctrl.addWidget(self.btnTimerReset); ctrl.addStretch(1); ctrl.addWidget(self.chkTimerPublish)
+        v.addLayout(ctrl)
+
+        tabs.addTab(page, "Timers")
+
+        self._timer_running = False
+        self._timer_mode = "countdown"  # or "stopwatch"
+        self._timer_ms = 120_000
+        self._timer_tick = QtCore.QTimer(self); self._timer_tick.setInterval(200); self._timer_tick.timeout.connect(self._timer_on_tick)
+        self._timer_sync_from_inputs(); self._timer_update_display()
+        QtGui.QShortcut(QtGui.QKeySequence("F9"),  self, activated=self._timer_start_pause)
+        QtGui.QShortcut(QtGui.QKeySequence("F10"), self, activated=self._timer_reset)
+
+    def _timer_mode_changed(self):
+        self._timer_mode = "countdown" if self.cmbTimerMode.currentText().lower().startswith("count") else "stopwatch"
+        self._timer_sync_from_inputs(); self._timer_update_display()
+        if self.chkTimerPublish.isChecked(): self._timer_publish_state()
+
+    def _timer_sync_from_inputs(self):
+        total_ms = (int(self.spnTimerMin.value()) * 60 + int(self.spnTimerSec.value())) * 1000
+        self._timer_ms = max(0, total_ms)
+
+    def _timer_set_inputs_from_ms(self, ms: int):
+        ms = max(0, int(ms))
+        m = ms // 60000; s = (ms % 60000) // 1000
+        old1 = self.spnTimerMin.blockSignals(True); old2 = self.spnTimerSec.blockSignals(True)
+        self.spnTimerMin.setValue(int(m)); self.spnTimerSec.setValue(int(s))
+        self.spnTimerMin.blockSignals(old1); self.spnTimerSec.blockSignals(old2)
+
+    def _timer_format_ms(self, ms: int) -> str:
+        ms = max(0, int(ms)); h = ms // 3_600_000; m = (ms // 60_000) % 60; s = (ms // 1000) % 60
+        if h > 0: return f"{h}:{m:02d}:{s:02d}"
+        return f"{m:02d}:{s:02d}"
+
+    def _timer_update_display(self):
+        self.lblTimerDisplay.setText(self._timer_format_ms(self._timer_ms))
+        self.btnTimerStart.setText("Pause" if self._timer_running else "Start")
+
+    def _timer_start_pause(self):
+        if not self._timer_running:
+            if self._timer_mode == "countdown" and self._timer_ms <= 0:
+                self._timer_sync_from_inputs()
+            self._timer_running = True; self._timer_tick.start()
+        else:
+            self._timer_running = False; self._timer_tick.stop()
+        self._timer_update_display()
+        if self.chkTimerPublish.isChecked(): self._timer_publish_state()
+
+    def _timer_reset(self):
+        if self._timer_mode == "countdown":
+            self._timer_sync_from_inputs()
+        else:
+            self._timer_ms = 0; self._timer_set_inputs_from_ms(0)
+        self._timer_running = False; self._timer_tick.stop()
+        self._timer_update_display()
+        if self.chkTimerPublish.isChecked(): self._timer_publish_state()
+
+    def _timer_preset(self, delta_ms: int):
+        if self._timer_mode == "stopwatch":
+            self._timer_ms = max(0, self._timer_ms + delta_ms)
+        else:
+            if not self._timer_running and delta_ms in (60_000, 120_000, 300_000, 600_000):
+                self._timer_ms = max(0, delta_ms)
+            else:
+                self._timer_ms = max(0, self._timer_ms + delta_ms)
+            self._timer_set_inputs_from_ms(self._timer_ms)
+        self._timer_update_display()
+        if self.chkTimerPublish.isChecked(): self._timer_publish_state()
+
+    def _timer_on_tick(self):
+        step = self._timer_tick.interval()
+        if self._timer_mode == "countdown":
+            self._timer_ms = max(0, self._timer_ms - step)
+            if self._timer_ms <= 0:
+                self._timer_running = False; self._timer_tick.stop(); self._toast("⏱️ Timer finished")
+        else:
+            self._timer_ms = self._timer_ms + step
+        self._timer_set_inputs_from_ms(self._timer_ms)
+        self._timer_update_display()
+        if self.chkTimerPublish.isChecked(): self._timer_publish_state()
+
+    def _timer_publish_state(self):
+        cfg = safe_json(CONFIG_FP, {})
+        cfg["timer"] = {"mode": self._timer_mode, "running": bool(self._timer_running),
+                        "millis": int(self._timer_ms), "updated_at": _now_iso()}
+        write_json(CONFIG_FP, cfg)
+
     # ---------- global actions ----------
     def _advance(self):
         if self.mode == "combat": self._advance_combat_next()
@@ -1198,11 +1575,9 @@ class GMWindow(QtWidgets.QMainWindow):
 
     def _toggle_mode(self):
         if hasattr(self, "btnMode") and isinstance(self.btnMode, QtWidgets.QToolButton):
-            self.btnMode.setChecked(not self.btnMode.isChecked())
-            return
+            self.btnMode.setChecked(not self.btnMode.isChecked()); return
         self.mode = "dialog" if self.mode == "combat" else "combat"
-        self._update_mode_button_text()
-        self._persist_config()
+        self._update_mode_button_text(); self._persist_config()
         self._toast(f"Mode → {self.mode.capitalize()}")
 
     def _load_status_catalog(self) -> List[str]:
@@ -1261,29 +1636,10 @@ class GMWindow(QtWidgets.QMainWindow):
         widget.setGeometry(x,y,w,h); widget.raise_(); widget.activateWindow()
 
     def _focus_active_search(self):
-        if self.grpCombat.isChecked() or True:  # always available
-            self.searchCombat.setFocus(); self.searchCombat.selectAll()
+        self.searchCombat.setFocus(); self.searchCombat.selectAll()
 
-# ---------- helpers ----------
-def _collect_suffixes(base_name: str, names: List[str]) -> set:
-    base = base_name.strip(); out = set()
-    for n in names:
-        if n == base: out.add("")
-        if n.startswith(base + " "):
-            tail = n[len(base)+1:].strip()
-            if tail: out.add(tail)
-    return out
 
-def _next_suffix(not_in: set) -> str:
-    for i in range(26):
-        s = chr(65+i)
-        if s not in not_in: return s
-    k = 1
-    while True:
-        s = f"A{k}"
-        if s not in not_in: return s
-        k += 1
-
+# ---------- Combatant editor ----------
 class _CombatantEditor(QtWidgets.QDialog):
     def __init__(self, parent=None, data: Optional[Dict] = None):
         super().__init__(parent)
@@ -1299,10 +1655,10 @@ class _CombatantEditor(QtWidgets.QDialog):
         btnBrowse = QtWidgets.QPushButton("Browse…"); btnBrowse.clicked.connect(self._browse)
         rowp = QtWidgets.QHBoxLayout(); rowp.addWidget(self.edPortrait,1); rowp.addWidget(btnBrowse)
         f.addRow("Name", self.edName)
-        f.addRow("HP (max)", self.edHP)
+        f.addRow("HP (max)", parent._wrap_spin_with_nudgers(self.edHP))
         f.addRow("Side", self.cbSide)
         f.addRow("Portrait PNG", rowp)
-        f.addRow("Initiative (roll)", self.edInit)
+        f.addRow("Initiative (roll)", parent._wrap_spin_with_nudgers(self.edInit))
         box = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok|QtWidgets.QDialogButtonBox.Cancel)
         box.accepted.connect(self.accept); box.rejected.connect(self.reject)
         f.addRow(box)
@@ -1322,3 +1678,6 @@ class _CombatantEditor(QtWidgets.QDialog):
             "portrait": self.edPortrait.text().strip(),
             "initiative": int(self.edInit.value()),
         }
+
+
+
