@@ -1,6 +1,10 @@
 {
-  "characters": [
-    {"id": "goblin-01", "name": "Goblin Skirmisher", "type": "monster", "hp": {"max": 12}, "ac": 15},
-    {"id": "thane-ranger", "name": "Thane Ranger", "type": "pc", "hp": {"max": 32}, "ac": 16}
+  "pack_id": "example_core",
+  "name": "Example Core",
+  "version": 1,
+  "entries": [
+    { "id": "goblin", "name": "Goblin", "side_default": "opponents", "hp": 7,  "init_mod": 2, "icon": "" },
+    { "id": "bandit", "name": "Bandit", "side_default": "opponents", "hp": 11, "init_mod": 1, "icon": "" },
+    { "id": "guard",  "name": "Town Guard", "side_default": "allies", "hp": 11, "init_mod": 1, "icon": "" }
   ]
 }
