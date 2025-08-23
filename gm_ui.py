@@ -960,130 +960,138 @@ class GMWindow(QtWidgets.QMainWindow):
         self._refresh_roster_results()
 
     def _refresh_roster_results(self):
+        """Apply pack filters + search, then render compact rows without HP/side/tags noise."""
         enabled = self._enabled_pack_ids()
         query = (self.edRosterSearch.text() or "").strip().lower()
-        side_mode = self.cmbRosterSideFilter.currentText()  # "All" | "Allies" | "Opponents"
-        raw_tags = (self.edRosterTags.text() or "").strip().lower()
-        tag_tokens = [t.strip() for t in raw_tags.split(",") if t.strip()]
-        rmin = float(self.spnRosterCRMin.value())
-        rmax = float(self.spnRosterCRMax.value())
-
-        self._roster_flat = self._filter_roster(self._roster_packs, enabled, query, side_mode, tag_tokens, rmin, rmax)
+        self._roster_flat = self._filter_roster(self._roster_packs, enabled, query)
 
         self.listRosterResults.clear()
-        for e in self._roster_flat:
-            name = e.get("name","?")
-            pid  = e.get("pack_id","?")
-            rid  = e.get("id","?")
-            label = e.get("rank_label", "Rank")
-            rtxt  = e.get("rank_text", "")
-            # Compact row
-            core = f"{name}"
-            rankbit = f"  • {label} {rtxt}" if rtxt != "" else ""
-            bracket = f"   [{pid}:{rid}]"
-            item = QtWidgets.QListWidgetItem(core + rankbit + bracket, self.listRosterResults)
-            # Tooltip (side, HP, tags)
-            side = e.get("side_default", "opponents")
-            hp   = e.get("hp", "?")
-            tags = ", ".join(e.get("tags", []))
-            tt = [f"<b>{name}</b>", f"{label}: {rtxt}" if rtxt != "" else None,
-                  f"Pack: {pid}", f"ID: {rid}", f"Side (default): {side}", f"HP (default): {hp}",
-                  f"Tags: {tags}" if tags else None]
-            item.setToolTip("<br>".join([t for t in tt if t]))
 
-    def _filter_roster(self, packs: list[dict], enabled_pack_ids: set[str], query: str,
-                       side_mode: str = "All", tag_tokens: list[str] = None,
-                       rank_min: float = 0.0, rank_max: float = 30.0) -> list[dict]:
-        tag_tokens = tag_tokens or []
+        # Map game system -> rank label used in UI
+        label_map = {
+            "5e": "CR", "2024srd": "CR",
+            "pf2e": "Level",
+            "osr": "HD",
+            "swade": "Rank",
+            "gurps": "Points",
+            "custom": "Rank"
+        }
+
+        # Helper: find pack by id (for system/name)
+        def _pack_by_id(pid: str) -> dict | None:
+            for p in self._roster_packs:
+                if p.get("pack_id") == pid:
+                    return p
+            return None
+
+        # Helper: make a short badge from the pack display name or id (e.g., "SRD")
+        def _short_pack_label(pid: str, display_name: str | None) -> str:
+            base = (display_name or pid or "").strip()
+            if not base:
+                return "Pack"
+            # Prefer acronym from capitals (SRD, MM, ToA). If none, use first token.
+            ac = "".join([c for c in base if c.isupper()])
+            if len(ac) >= 2:
+                return ac
+            return base.replace("_", " ").split()[0].capitalize()
+
+        for e in self._roster_flat:
+            name = e.get("name", "?")
+            pid  = e.get("pack_id", "?")
+
+            pack = _pack_by_id(pid)
+            system = (e.get("system") or (pack.get("system") if pack else None) or "custom").lower()
+            rank_label = label_map.get(system, "Rank")
+
+            rank = e.get("rank")
+            # Build: Name  • RankLabel Rank   [PACK]
+            parts = [name]
+            if rank:
+                parts.append(f"• {rank_label} {rank}")
+
+            pack_badge = _short_pack_label(pid, pack.get("name") if pack else None)
+            parts.append(f"[{pack_badge}]")
+
+            row = "  ".join(parts)
+            QtWidgets.QListWidgetItem(row, self.listRosterResults)
+
+
+    def _filter_roster(self, packs: list[dict], enabled_pack_ids: set[str], query: str) -> list[dict]:
         out = []
+        q = (query or "").strip().lower()
+
+        def match(e: dict) -> bool:
+            if not q:
+                return True
+            hay = " ".join([
+                e.get("name", ""),
+                e.get("id", ""),
+                " ".join(e.get("tags", []) or []),
+                " ".join(e.get("biomes", []) or []),
+            ]).lower()
+            return q in hay
+
         for p in packs:
             if p.get("pack_id") not in enabled_pack_ids:
                 continue
             for e in p.get("entries", []):
-                side = e.get("side_default","opponents").lower()
-                if side_mode == "Allies" and side != "allies": continue
-                if side_mode == "Opponents" and side != "opponents": continue
-                rv = float(e.get("rank_num", 0.0))
-                if not (rank_min <= rv <= rank_max): continue
-                etags = [t.lower() for t in (e.get("tags", []) or [])]
-                if tag_tokens and not all(t in etags for t in tag_tokens): continue
-                if query:
-                    hay = " ".join([
-                        str(e.get("name","")).lower(),
-                        str(e.get("id","")).lower(),
-                        " ".join(etags),
-                        side,
-                        str(e.get("hp","")).lower(),
-                        str(e.get("rank_text","")).lower(),
-                    ])
-                    if query not in hay: continue
-                out.append(e)
-        out.sort(key=lambda e: (e.get("name","").lower(), f"{e.get('pack_id','')}:{e.get('id','')}"))
+                if match(e):
+                    out.append(e)
+
+        out.sort(key=lambda e: (e.get("name", "").lower(), f"{e.get('pack_id','')}:{e.get('id','')}"))
         return out
 
+
     def _load_roster_packs(self) -> list[dict]:
+        """Load packs from /data/rosters/*.json and normalize entries.
+           Preserves: rank, system (pack-level fallback), tags, biomes."""
         packs = []
         if not ROSTERS_DIR.exists():
             self._log("Roster: folder missing — creating.")
-            try: ROSTERS_DIR.mkdir(parents=True, exist_ok=True)
-            except Exception: pass
+            try:
+                ROSTERS_DIR.mkdir(parents=True, exist_ok=True)
+            except Exception:
+                pass
             return packs
+
         for fp in sorted(ROSTERS_DIR.glob("*.json")):
             try:
                 data = json.loads(fp.read_text(encoding="utf-8"))
-                pid  = str(data.get("pack_id") or fp.stem)
-                name = str(data.get("name") or pid)
-                system = str(data.get("system","")).strip().lower() or None
-                pack_rank_label = data.get("rank_label")
-                pack_rank_label_display = _rank_label_for_pack(system, pack_rank_label)
+                pid   = str(data.get("pack_id") or fp.stem)
+                pname = str(data.get("name") or pid)
+                psys  = str(data.get("system") or "custom").lower()  # pack-level system default
                 entries = data.get("entries", [])
-                if not isinstance(entries, list): raise ValueError("entries must be a list")
+                if not isinstance(entries, list):
+                    raise ValueError("entries must be a list")
+
                 norm = []
                 for e in entries:
                     try:
-                        rid = str(e.get("id") or _slug(e.get("name","entry")))
-                        tags = e.get("tags", [])
-                        if isinstance(tags, str):
-                            tags = [t.strip() for t in tags.split(",") if t.strip()]
-                        elif not isinstance(tags, list):
-                            tags = []
-                        biomes = e.get("biomes", [])
-                        if isinstance(biomes, str):
-                            biomes = [t.strip() for t in biomes.split(",") if t.strip()]
-                        elif not isinstance(biomes, list):
-                            biomes = []
-                        seen=set(); norm_tags=[]
-                        for t in [*tags, *biomes]:
-                            k=str(t).strip()
-                            if not k: continue
-                            kl=k.lower()
-                            if kl not in seen:
-                                seen.add(kl); norm_tags.append(k)
-                        e_system = str(e.get("system","")).strip().lower() or system
-                        e_rank_label = e.get("rank_label")
-                        label_display = _rank_label_for_pack(e_system, e_rank_label)
-                        rank_val, rank_txt = _parse_rank(e.get("rank", 0))
+                        rid = str(e.get("id") or _slug(e.get("name", "entry")))
+                        # entry-level system can override the pack's system
+                        esys = str(e.get("system") or psys).lower()
                         norm.append({
                             "pack_id": pid,
                             "id": rid,
                             "name": str(e.get("name") or rid),
-                            "side_default": str(e.get("side_default","opponents")),
+                            "side_default": str(e.get("side_default", "opponents")),
                             "hp": int(e.get("hp", 10)),
-                            "icon": str(e.get("icon","")),
+                            "icon": str(e.get("icon", "")),
                             "init_mod": int(e.get("init_mod", 0)),
                             "status_defaults": list(e.get("status_defaults", [])),
-                            "tags": norm_tags,
-                            "rank_num": float(rank_val),
-                            "rank_text": rank_txt,
-                            "rank_label": label_display,
+                            # NEW: keep rank/system/tags/biomes
+                            "rank": str(e.get("rank", "")).strip(),
+                            "system": esys,
+                            "tags": list(e.get("tags", [])),
+                            "biomes": list(e.get("biomes", [])),
                         })
                     except Exception as ie:
                         self._log(f"Roster: skipping bad entry in {fp.name}: {ie}")
-                packs.append({"pack_id": pid, "name": name, "entries": norm,
-                              "system": system, "rank_label": pack_rank_label_display})
+                packs.append({"pack_id": pid, "name": pname, "system": psys, "entries": norm})
             except Exception as ex:
                 self._log(f"Roster: failed to load {fp.name}: {ex}")
         return packs
+
 
     def _add_roster_entry(self, entry: dict, count: int, side_override: str | None = None):
         side = (side_override or entry.get("side_default","opponents")).strip().lower()
