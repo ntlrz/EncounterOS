@@ -13,41 +13,64 @@ into keeping up with the battle state.
 ## Features
 
 ### GM UI (Control Panel)
-- Add/remove characters with optional portrait icons (auto‑sized, grayscale).
-- Track HP with quick ± buttons.
-- Combat toggle (Peace ↔ Combat):
-  - Prompts for missing initiatives.
-  - Auto‑rolls (d20 + initMod) if blank.
-  - Sorts and assigns turn order.
-- Manual initiative entry supported.
-- Status Effects via compact popup.
-- Launch / Stop the overlay.
+
+MVP Panel (always visible):
+Add / edit / duplicate / remove combatants (allies & enemies) with optional portraits.
+HP tracking: quick ±1/±5 and Set‑exact.
+Status effects editor (checklist popup).
+Initiative order & round tracker.
+Advance / Previous turn (F5 / F7).
+Peace ↔ Combat toggle.
+
+Dialog Controls:
+Create blocks with speaker, text, and optional portrait path.
+Edit without sending live; Make Current (or F8) pushes block to overlay.
+Prep multiple blocks in advance.
+
+Encounters:
+Save/load combat encounters and dialog sequences (JSON).
+Send saved encounters directly into Combat or Dialog queues.
+
+Log:
+Records HP/status changes, turn advances, and encounter saves/loads/sends.
+
+Notes:
+Markdown scratchpad with live preview.
+Multiple files in /data/notes/, switchable from a dropdown.
+Autosaves while you type.
+
+Settings:
+Overlay auto-refresh toggle and poll interval.
+Change overlay theme (read from /themes/).
 
 ### Overlay (Player View)
-- Chroma‑key friendly magenta background.
-- Right‑side character cards with portrait, HP bar, and status badges.
-- Peace: enemies hidden. Combat: enemies show condition text.
-- Dialogue box (reads `dialog.txt`, paragraph‑wrapped).
+Transparent window (captured via OBS Window Capture).
+Right‑column character cards:
+Allies: portrait, HP bar, status icons.
+Enemies: condition text + status icons (no HP bars).
+Peace mode → shows allies only.
+Combat mode → shows allies + enemies; highlights current turn.
+
+### Themes
+Themes live in themes/<theme-name>/theme.json and define:
+Grid/layout regions (e.g., right column, dialog box)
+Colors (cards, text, borders, HP bars)
+Fonts and sizes
+Switch themes from Overlay → Theme (menu). The choice is saved to config.json and reloaded live by the overlay.
 
 ---
 
-## Hotkeys & Shortcuts
-
-### A) When the Overlay Window is Focused
-→ Next turn
-← Previous turn
-↓ Next dialogue line
-↑ Previous dialogue line
-*Tip:* In OBS, you can click the overlay capture to focus it briefly if needed.
-
-### B) Background Control with AutoHotkey (Optional)
-If you use the included **AHK v2** script, you can map **F13–F22** to actions without changing focus.
+## Hotkeys
 
 Default mapping:
-- **F14 / F15** → Next / Previous turn  
-- **F20 / F21** → Next / Previous dialogue line  
-- **F13** → Toggle Combat (C)  
-- **F16 / F17 / F18 / F19** → HP adjustments (`=`, `-`, `]`, `[`) if mapped in GM UI
+F4 → Toggle overlay on/off
+F5 → Advance turn / dialog
+F7 → Previous turn / dialog
+F6 → Toggle Peace/Combat mode
+F8 → Make selected dialog block live
+Delete → Remove selected combatant or dialog block
+/ → Focus quick‑add search
+Double‑click a combatant → open editor
 
 ---
 
@@ -58,6 +81,16 @@ Default mapping:
 
 │   └── /dialog-portraits/
 
+├── data
+
+│   ├── encounters/
+
+│   │   ├── combat/    
+
+│   │   ├── dialog/    
+
+│   └── notes/
+
 ├── themes
 
 │   ├── dark_parchment
@@ -66,11 +99,15 @@ Default mapping:
 
 │   └── rpg-retro
 
+├── main.py
+
 ├── gm_ui.py
 
 ├── trackeroverlay.py
 
 ├── config.json
+
+├── dialog_meta.json
 
 ├── dialog.txt
 
