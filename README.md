@@ -136,7 +136,7 @@ Double‑click a combatant → open editor
 
 **Packages**
 ```bash
-pip install pygame pillow PySide6
+pip install pygame pillow PySide6 markdown
 ```
 
 ## Running the App
