@@ -19,6 +19,18 @@ BASE_W, BASE_H = 1280, 720
 ICON_SIZE      = QSize(64,64)
 STATUS_ICON_SZ = QSize(24,24)
 
+def _compute_fit(src_w, src_h, dst_w, dst_h, mode="contain"):
+    sx = dst_w / src_w
+    sy = dst_h / src_h
+    if mode == "contain":
+        s = min(sx, sy)
+        return (s, s, (dst_w - src_w * s) / 2.0, (dst_h - src_h * s) / 2.0)
+    elif mode == "cover":
+        s = max(sx, sy)
+        return (s, s, (dst_w - src_w * s) / 2.0, (dst_h - src_h * s) / 2.0)
+    else:  # "stretch"
+        return (sx, sy, 0.0, 0.0)
+
 # -------- Theme manager --------
 class ThemeManager:
     def __init__(self):
@@ -190,6 +202,41 @@ class Overlay(QWidget):
         if self.auto_refresh:
             self.timer.start(self.poll_ms)
 
+    def set_fit_mode(self, mode: str):
+        mode = (mode or "contain").strip().lower()
+        if mode not in ("contain","cover","stretch"): mode = "contain"
+        self._fit_mode = mode
+        self.update()
+
+    def move_to_screen(self, screen_name: str | None):
+        app = QApplication.instance()
+        scr = None
+        if screen_name:
+            for s in app.screens():
+                if screen_name.lower() in s.name().lower():
+                    scr = s; break
+        if scr is None:
+            scr = app.primaryScreen()
+        geo = scr.geometry()
+        if self.isFullScreen():
+            # ensure full coverage on that screen
+            self.setGeometry(geo)
+        else:
+            # center a 1280x720 window on that screen
+            x = geo.x() + (geo.width() - BASE_W)//2
+            y = geo.y() + (geo.height() - BASE_H)//2
+            self.setGeometry(x, y, BASE_W, BASE_H)
+
+    def keyPressEvent(self, e):
+        if e.key() == Qt.Key_F11:
+            if self.isFullScreen():
+                self.showNormal()
+            else:
+                self.showFullScreen()
+        else:
+            super().keyPressEvent(e)
+
+
     # --- drag to move ---
     def mousePressEvent(self, e):
         if e.button() == Qt.LeftButton:
@@ -274,6 +321,11 @@ class Overlay(QWidget):
         p.fillRect(self.rect(), Qt.transparent)
         p.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
+        mode = getattr(self, "_fit_mode", "contain")
+        sx, sy, ox, oy = _compute_fit(BASE_W, BASE_H, self.width(), self.height(), mode)
+        p.translate(ox, oy)
+        p.scale(sx, sy)
+
         # theme colors & fonts
         col_card_bg     = self.theme.qcolor("card_bg", "#000000")
         col_border_idle = self.theme.qcolor("border_idle", "#C8C8C8")
@@ -295,8 +347,9 @@ class Overlay(QWidget):
         full_party = self.party.get("party", [])
         turn_idx = max(0, min(self.config.get("turnIndex",0), max(0,len(full_party)-1)))
 
-        right_rect = self.theme.region_rect(self.size(), "right_column")
-        dialog_rect= self.theme.region_rect(self.size(), "dialog_box")
+        logical_size = QSize(BASE_W, BASE_H)
+        right_rect = self.theme.region_rect(logical_size, "right_column")
+        dialog_rect= self.theme.region_rect(logical_size, "dialog_box")
 
         render_party = full_party if combat else [m for m in full_party if not m.get("isEnemy",False)]
 

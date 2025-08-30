@@ -1,10 +1,9 @@
 # gm_ui.py — EncounterOS GM UI (consolidated)
 from __future__ import annotations
-import json, os
+import json, os, random
 from pathlib import Path
 from typing import List, Dict, Optional, Tuple
 from datetime import datetime, timezone
-
 from PySide6 import QtWidgets, QtGui, QtCore
 
 APP_DIR    = Path(__file__).resolve().parent
@@ -102,6 +101,13 @@ def _rank_label_for_pack(system: str | None, pack_rank_label: str | None) -> str
     if system:
         return _RANK_LABEL_MAP.get(str(system).strip().lower(), "Rank")
     return "Rank"
+    
+try:
+    import markdown as _MD_LIB  # pip install markdown
+    _HAS_PY_MARKDOWN = True
+except Exception:
+    _MD_LIB = None
+    _HAS_PY_MARKDOWN = False
 
 # ---------- QSS ----------
 DARK_QSS = """
@@ -136,6 +142,16 @@ QCheckBox::indicator { width: 15px; height: 15px; border: 1px solid #aaa; backgr
 QCheckBox::indicator:checked { image: none; background: #2b7de9; border: 1px solid #2b7de9; }
 """
 
+_MD_CSS = """
+<style>
+  body { font-family: system-ui, Segoe UI, Roboto, Arial, sans-serif; line-height: 1.25; }
+  table { border-collapse: collapse; margin: 8px 0; width: 100%; }
+  th, td { border: 1px solid rgba(136,136,136,0.25); padding: 6px 8px; text-align: left; vertical-align: top; }
+  thead th { background: rgba(136,136,136,0.06); }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+</style>
+"""
+
 # ---------- main window ----------
 class GMWindow(QtWidgets.QMainWindow):
     def __init__(self):
@@ -148,6 +164,11 @@ class GMWindow(QtWidgets.QMainWindow):
         self.auto_refresh = bool(cfg0.get("auto_refresh", True))
         self.poll_ms      = max(100, int(cfg0.get("poll_ms", 200)))
         self.ui_dark      = bool(cfg0.get("ui_dark", True))
+        
+        ov = cfg0.get("overlay") or {}
+        self.ov_screen = ov.get("screen")          # e.g., "HDMI-2" or None
+        self.ov_fit    = (ov.get("fit") or "contain")
+        self.ov_full   = bool(ov.get("fullscreen", True))
 
         self.mode = "combat"         # "combat" | "dialog"
         self.overlay_on = False
@@ -204,6 +225,34 @@ class GMWindow(QtWidgets.QMainWindow):
         # initial sync
         self._sync_topbar()
         self._persist_all()
+        
+        # Markdown rendering (tables)
+        global _HAS_PY_MARKDOWN, _MD_LIB
+        try:
+            import markdown as _MD_LIB  # pip install markdown
+            _HAS_PY_MARKDOWN = True
+        except Exception:
+            _MD_LIB = None
+            _HAS_PY_MARKDOWN = False
+
+    def _load_status_catalog(self) -> list[str]:
+        """Read status icon names from icons/status/*.png and return a sorted list."""
+        names = []
+        try:
+            if STATUS_DIR.exists():
+                for fn in os.listdir(STATUS_DIR):
+                    if fn.lower().endswith(".png"):
+                        names.append(os.path.splitext(fn)[0])
+        except Exception:
+            pass
+        if not names:
+            # Fallback defaults if no icons found
+            names = [
+                "Poisoned","Stunned","Prone","Blessed","Charmed",
+                "Grappled","Frightened","Invisible"
+            ]
+        # Deduplicate and sort case-insensitively
+        return sorted({n for n in names}, key=str.lower)
 
     # ---------- Menus / topbar ----------
     def _build_menubar(self):
@@ -237,6 +286,38 @@ class GMWindow(QtWidgets.QMainWindow):
         actInterval.triggered.connect(self._set_poll_interval)
         self._themes_menu = mOverlay.addMenu("Theme")
         self._populate_themes_menu()
+        
+        # --- Screen submenu (radio)
+        mScreens = mOverlay.addMenu("Target Screen")
+        grp = QtGui.QActionGroup(self); grp.setExclusive(True)
+        actPrim = mScreens.addAction("(Primary)"); actPrim.setCheckable(True)
+        actPrim.setChecked(self.ov_screen is None)
+        actPrim.triggered.connect(lambda: self._ov_set_screen(None))
+        grp.addAction(actPrim)
+        for s in QtGui.QGuiApplication.screens():
+            a = mScreens.addAction(s.name()); a.setCheckable(True)
+            a.setChecked(self.ov_screen == s.name())
+            a.triggered.connect(lambda chk, name=s.name(): self._ov_set_screen(name))
+            grp.addAction(a)
+
+        # --- Fit mode (radio)
+        mFit = mOverlay.addMenu("Fit Mode")
+        grpFit = QtGui.QActionGroup(self); grpFit.setExclusive(True)
+        for mode in ("contain","cover","stretch"):
+            a = mFit.addAction(mode); a.setCheckable(True)
+            a.setChecked(self.ov_fit == mode)
+            a.triggered.connect(lambda chk, mname=mode: self._ov_set_fit(mname))
+            grpFit.addAction(a)
+
+        # --- Fullscreen toggle
+        actFS = mOverlay.addAction("Fullscreen")
+        actFS.setCheckable(True); actFS.setChecked(self.ov_full)
+        actFS.toggled.connect(self._ov_toggle_fullscreen)
+
+        # Optional quick action: snap now
+        mOverlay.addSeparator()
+        actSnap = mOverlay.addAction("Snap Overlay to Selected Screen")
+        actSnap.triggered.connect(self._ov_apply_screen_now)
 
     def _build_topbar(self):
         self.topbar = QtWidgets.QWidget()
@@ -314,7 +395,12 @@ class GMWindow(QtWidgets.QMainWindow):
         if on and hasattr(self, "_OverlayClass") and self._OverlayClass:
             if not self.overlay_win:
                 self.overlay_win = self._OverlayClass()
-            self.overlay_win.show(); self._center_on_screen(self.overlay_win)
+                # apply current prefs once
+                self.overlay_win.set_fit_mode(self.ov_fit)
+            # place on chosen screen and fullscreen if requested
+            self.overlay_win.move_to_screen(self.ov_screen)
+            if self.ov_full: self.overlay_win.showFullScreen()
+            else:            self.overlay_win.show()
         elif self.overlay_win:
             self.overlay_win.hide()
 
@@ -369,6 +455,93 @@ class GMWindow(QtWidgets.QMainWindow):
             self.actAutoRefresh.blockSignals(old)
         self._populate_themes_menu()
 
+    def _roll_d20(self) -> int:
+        return random.randint(1, 20)
+
+    def _roll_initiative_all(self):
+        if not self.combatants:
+            return
+        results = []
+        for m in self.combatants:
+            self._ensure_init_fields(m)
+            r = self._roll_d20()
+            mod = int(m.get("initMod", 0))
+            m["initRoll"] = r
+            m["initTotal"] = r + mod
+            results.append(f"{m.get('name','?')} {m['initTotal']} (d20 {r:+d} {mod:+d})")
+        self._sort_initiative()
+        self._log("Initiative rolled: " + ", ".join(results))
+
+    def _reroll_selected(self):
+        rows = sorted({i.row() for i in self.listCombat.selectedIndexes()})
+        if not rows:
+            return
+        results = []
+        for r in rows:
+            if 0 <= r < len(self.combatants):
+                m = self.combatants[r]
+                self._ensure_init_fields(m)
+                roll = self._roll_d20()
+                mod = int(m.get("initMod", 0))
+                m["initRoll"] = roll
+                m["initTotal"] = roll + mod
+                results.append(f"{m.get('name','?')} {m['initTotal']} (d20 {roll:+d} {mod:+d})")
+                # update row text immediately
+                self._update_combat_row(r)
+        self._sort_initiative()
+        self._log("Re-rolled: " + ", ".join(results))
+
+    def _sort_initiative(self):
+        if not self.combatants:
+            return
+        # If some entries have no roll yet, treat total as -inf so they go last
+        def keyf(m):
+            self._ensure_init_fields(m)
+            total = m.get("initTotal")
+            return (total if total is not None else -9999, m.get("name",""))
+        # Keep current active name so we can preserve “whose turn” if possible
+        active_name = self.combatants[self.turn_index]["name"] if (0 <= self.turn_index < len(self.combatants)) else None
+        self.combatants.sort(key=keyf, reverse=True)
+        # Move turn_index to that same combatant if still present; else 0
+        if active_name:
+            for i, m in enumerate(self.combatants):
+                if m.get("name") == active_name:
+                    self.turn_index = i
+                    break
+            else:
+                self.turn_index = 0
+        else:
+            self.turn_index = 0
+        self._refresh_combat_list()
+        self._persist_party()
+        self._log("Turn order updated.")
+
+    def _ov_set_screen(self, name: str | None):
+        self.ov_screen = name
+        self._persist_config()
+        # If overlay is visible, move it now
+        if self.overlay_win:
+            self.overlay_win.move_to_screen(name)
+
+    def _ov_set_fit(self, mode: str):
+        self.ov_fit = mode
+        self._persist_config()
+        if self.overlay_win:
+            self.overlay_win.set_fit_mode(mode)
+
+    def _ov_toggle_fullscreen(self, on: bool):
+        self.ov_full = bool(on)
+        self._persist_config()
+        if self.overlay_win:
+            if on: self.overlay_win.showFullScreen()
+            else:  self.overlay_win.showNormal()
+            # keep it on the chosen screen
+            self.overlay_win.move_to_screen(self.ov_screen)
+
+    def _ov_apply_screen_now(self):
+        if self.overlay_win:
+            self.overlay_win.move_to_screen(self.ov_screen)
+
     # ---------- MVP cockpit ----------
     def _build_mvp_cockpit(self) -> QtWidgets.QWidget:
         panel = QtWidgets.QWidget(); v = QtWidgets.QVBoxLayout(panel)
@@ -415,6 +588,20 @@ class GMWindow(QtWidgets.QMainWindow):
         rowInit.addWidget(self.btnAddSingle); rowInit.addWidget(self.btnEdit); rowInit.addWidget(self.btnRemove)
         rowInit.addWidget(self.btnDup); rowInit.addWidget(self.btnClear); rowInit.addStretch(1)
         cv.addLayout(rowInit)
+        
+        # Initiative tools (roll/sort)
+        rowInit2 = QtWidgets.QHBoxLayout()
+        self.btnInitRollAll   = QtWidgets.QPushButton("Roll All (d20+mod)")
+        self.btnInitRerollSel = QtWidgets.QPushButton("Re-roll Selected")
+        self.btnInitSort      = QtWidgets.QPushButton("Sort Initiative")
+        rowInit2.addWidget(self.btnInitRollAll)
+        rowInit2.addWidget(self.btnInitRerollSel)
+        rowInit2.addWidget(self.btnInitSort)
+        rowInit2.addStretch(1)
+        cv.addLayout(rowInit2)
+        self.listCombat.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.listCombat.customContextMenuRequested.connect(self._combat_context_menu)
+
 
         self.searchCombat = QtWidgets.QLineEdit()
         self.searchCombat.setPlaceholderText("Quick add by name (Enter adds +1)")
@@ -483,6 +670,11 @@ class GMWindow(QtWidgets.QMainWindow):
         self.btnClear.clicked.connect(self._clear_combat)
         self.searchCombat.returnPressed.connect(lambda: self._add_from_search(1))
         QtGui.QShortcut(QtGui.QKeySequence("Delete"), self.grpCombat, activated=self._remove_selected)
+        
+        # Initiative buttons wiring
+        self.btnInitRollAll.clicked.connect(self._roll_initiative_all)
+        self.btnInitRerollSel.clicked.connect(self._reroll_selected)
+        self.btnInitSort.clicked.connect(self._sort_initiative)
 
         # Wire dialog
         self.btnAddDialog.clicked.connect(self._add_dialog_block)
@@ -492,6 +684,57 @@ class GMWindow(QtWidgets.QMainWindow):
         QtGui.QShortcut(QtGui.QKeySequence("Delete"), self.grpDialog, activated=self._remove_selected_dialog)
 
         return panel
+
+    def _combat_context_menu(self, pos):
+        """Right-click menu for the combat list."""
+        if not hasattr(self, "listCombat") or self.listCombat is None:
+            return
+
+        menu = QtWidgets.QMenu(self)
+
+        def add_action(text, method_name, shortcut=None):
+            if hasattr(self, method_name) and callable(getattr(self, method_name)):
+                act = menu.addAction(text)
+                if shortcut:
+                    act.setShortcutVisibleInContextMenu(True)
+                    act.setShortcut(QtGui.QKeySequence(shortcut))
+                act.triggered.connect(getattr(self, method_name))
+                return act
+            return None
+
+        add_action("Roll initiative (all)", "_roll_initiative_all")
+        add_action("Reroll selected", "_reroll_selected")
+        menu.addSeparator()
+
+        for name, label in [
+            ("_remove_selected_combatants", "Remove selected"),
+            ("_remove_selected_from_combat", "Remove selected"),
+            ("_remove_selected", "Remove selected"),
+        ]:
+            if add_action(label, name):
+                break
+
+        for name, label in [
+            ("_clear_initiative", "Clear initiative"),
+            ("_clear_combat", "Clear combat"),
+            ("_clear_all_combatants", "Clear combat"),
+        ]:
+            if add_action(label, name):
+                break
+
+        global_pos = self.listCombat.viewport().mapToGlobal(pos)
+        menu.exec(global_pos)
+
+    def _build_encounters_tab(self, tabs):
+        """Compatibility shim: old code expects an 'Encounters' tab builder.
+        Forward to the existing roster tab builder to preserve behavior."""
+        if hasattr(self, "_build_roster_tab") and callable(self._build_roster_tab):
+            return self._build_roster_tab(tabs)
+
+        # Fallback: create an empty tab so the app still launches
+        page = QtWidgets.QWidget(self)
+        tabs.addTab(page, "Encounters")
+        return page
 
     # ---- uniform spinner wrapper (± buttons) ----
     def _wrap_spin_with_nudgers(self, spin: QtWidgets.QAbstractSpinBox, step: float | None = None) -> QtWidgets.QWidget:
@@ -533,33 +776,54 @@ class GMWindow(QtWidgets.QMainWindow):
             if len(out)>=3: break
         return " " + " ".join(out) if out else ""
 
+    def _ensure_init_fields(self, m: dict):
+        """Back-compat: map old 'initiative' into initMod if new fields not present."""
+        if "initMod" not in m:
+            m["initMod"] = int(m.get("initiative", 0))
+        if "initRoll" not in m:
+            m["initRoll"] = None
+        if "initTotal" not in m:
+            m["initTotal"] = None
+
     def _combat_row_text(self, m: dict) -> str:
-        name = m.get("name","?")
-        cur = m.get("currentHP","?")
-        mx  = m.get("maxHP","?")
-        init= int(m.get("initiative",0))
+        self._ensure_init_fields(m)
+        name = m.get("name", "?")
+        cur = m.get("currentHP", "?")
+        mx  = m.get("maxHP", "?")
         badges = self._status_emojis(m.get("statusEffects"))
-        return f"{name}   HP {cur}/{mx}   Init {init:+d}{badges}"
+        if m.get("initTotal") is not None:
+            init_txt = f"{int(m['initTotal']):d} (d20 {int(m.get('initRoll',0)):+d} {int(m.get('initMod',0)):+d})"
+        else:
+            init_txt = f"mod {int(m.get('initMod',0)):+d}"
+        return f"{name}   HP {cur}/{mx}   Init {init_txt}{badges}"
 
     def _refresh_combat_list(self):
         cur_rows = [i.row() for i in self.listCombat.selectedIndexes()]
-        vbar = self.listCombat.verticalScrollBar(); vpos = vbar.value() if vbar else 0
+        vbar = self.listCombat.verticalScrollBar()
+        vpos = vbar.value() if vbar else 0
+
         self.listCombat.clear()
         for m in self.combatants:
+            self._ensure_init_fields(m)
             QtWidgets.QListWidgetItem(self._combat_row_text(m), self.listCombat)
+
         if self.combatants:
             if self.turn_index < 0 or self.turn_index >= len(self.combatants):
                 self.turn_index = 0
         else:
-            self.turn_index = -1; self.round = 1
+            self.turn_index = -1
+            self.round = 1
+
         if cur_rows:
             for r in cur_rows:
                 if 0 <= r < self.listCombat.count():
                     self.listCombat.item(r).setSelected(True)
             if 0 <= cur_rows[0] < self.listCombat.count():
                 self.listCombat.setCurrentRow(cur_rows[0])
+
         if vbar:
             QtCore.QTimer.singleShot(0, lambda: vbar.setValue(vpos))
+
         self._update_turn_label()
         self._on_combat_selection_changed(self.listCombat.currentRow())
 
@@ -645,35 +909,61 @@ class GMWindow(QtWidgets.QMainWindow):
 
     def _add_single(self):
         dlg = _CombatantEditor(self)
-        if dlg.exec() == QtWidgets.QDialog.Accepted:
-            p = dlg.payload()
-            base = {"name": p["name"], "isEnemy": (p["side"]=="opponents"),
-                    "maxHP": p["hpmax"], "currentHP": p["hpmax"], "icon": p.get("portrait",""),
-                    "statusEffects": [], "initiative": p["initiative"]}
-            self._add_instances(base, 1); self._persist_party()
+        if dlg.exec() != QtWidgets.QDialog.Accepted:
+            return
+        p = dlg.payload()
+        base = {
+            "name": p["name"],
+            "isEnemy": (p["side"] == "opponents"),
+            "maxHP": int(p["hpmax"]),
+            "currentHP": int(p["hpmax"]),
+            "icon": p.get("portrait", ""),
+            "statusEffects": [],
+            # initiative (separate fields)
+            "initMod": int(p.get("init_mod", 0)),
+            "initRoll": None,
+            "initTotal": None,
+        }
+        self._add_instances(base, 1)
+        self._persist_party()
 
     def _edit_selected(self):
         rows = [i.row() for i in self.listCombat.selectedIndexes()]
-        if not rows: return
-        row = rows[0]; data = dict(self.combatants[row])
+        if not rows:
+            return
+        row = rows[0]
+        data = dict(self.combatants[row])
+        self._ensure_init_fields(data)
         dlg = _CombatantEditor(self, data)
-        if dlg.exec() != QtWidgets.QDialog.Accepted: return
+        if dlg.exec() != QtWidgets.QDialog.Accepted:
+            return
         p = dlg.payload()
         m = self.combatants[row]
         m["name"] = p["name"]
         m["isEnemy"] = (p["side"] == "opponents")
         m["maxHP"] = int(p["hpmax"])
         m["currentHP"] = min(int(m.get("currentHP", p["hpmax"])), int(p["hpmax"]))
-        m["icon"] = p.get("portrait","")
-        m["initiative"] = int(p["initiative"])
-        self._update_combat_row(row); self._persist_party()
+        m["icon"] = p.get("portrait", "")
+        m["initMod"] = int(p.get("init_mod", 0))
+        # keep existing roll/total unless re-rolled
+        if "initRoll" not in m:
+            m["initRoll"] = None
+        if "initTotal" not in m:
+            m["initTotal"] = None
+        self._update_combat_row(row)
+        self._persist_party()
 
     def _duplicate_selected(self):
         rows = sorted({i.row() for i in self.listCombat.selectedIndexes()})
         if not rows: return
         for r in rows:
             base = dict(self.combatants[r])
-            base["name"] = base["name"].split(" ")[0]
+            # normalize init fields on the base copy
+            self._ensure_init_fields(base)
+            # strip suffix back to base name for suffixing on add
+            base["name"] = base.get("name","").split(" ")[0]
+            # avoid legacy 'initiative' field leaking back in
+            base.pop("initiative", None)
             self._add_instances(base, 1)
         self._persist_party()
         self._log(f"Duplicated {len(rows)} combatant(s)")
@@ -699,9 +989,21 @@ class GMWindow(QtWidgets.QMainWindow):
 
     def _add_from_search(self, count: int):
         q = self.searchCombat.text().strip()
-        if not q: return
-        base = {"name": q, "isEnemy": True, "maxHP": 10, "currentHP": 10, "icon": "", "statusEffects": [], "initiative": 0}
-        self._add_instances(base, count); self._persist_party()
+        if not q:
+            return
+        base = {
+            "name": q,
+            "isEnemy": True,
+            "maxHP": 10,
+            "currentHP": 10,
+            "icon": "",
+            "statusEffects": [],
+            "initMod": 0,
+            "initRoll": None,
+            "initTotal": None,
+        }
+        self._add_instances(base, count)
+        self._persist_party()
 
     def _add_instances(self, base: Dict, count: int):
         base_name = base["name"]
@@ -949,6 +1251,15 @@ class GMWindow(QtWidgets.QMainWindow):
 
     def _refresh_roster_packs(self):
         self._roster_packs = self._load_roster_packs()
+        # Build a quick meta lookup {pack_id: {"system":..., "rank_label":..., "name":...}}
+        self._roster_pack_meta = {
+            p.get("pack_id",""): {
+                "system": p.get("system"),
+                "rank_label": p.get("rank_label"),
+                "name": p.get("name"),
+            }
+            for p in self._roster_packs
+        }
         self.listRosterPacks.blockSignals(True)
         self.listRosterPacks.clear()
         for pack in self._roster_packs:
@@ -960,61 +1271,43 @@ class GMWindow(QtWidgets.QMainWindow):
         self._refresh_roster_results()
 
     def _refresh_roster_results(self):
-        """Apply pack filters + search, then render compact rows without HP/side/tags noise."""
+        """Apply pack filters + search, render as: Name  • <RankLabel> <rank>  [PACK]"""
         enabled = self._enabled_pack_ids()
         query = (self.edRosterSearch.text() or "").strip().lower()
         self._roster_flat = self._filter_roster(self._roster_packs, enabled, query)
 
-        self.listRosterResults.clear()
-
-        # Map game system -> rank label used in UI
-        label_map = {
-            "5e": "CR", "2024srd": "CR",
-            "pf2e": "Level",
-            "osr": "HD",
-            "swade": "Rank",
-            "gurps": "Points",
-            "custom": "Rank"
-        }
-
-        # Helper: find pack by id (for system/name)
         def _pack_by_id(pid: str) -> dict | None:
             for p in self._roster_packs:
                 if p.get("pack_id") == pid:
                     return p
             return None
 
-        # Helper: make a short badge from the pack display name or id (e.g., "SRD")
         def _short_pack_label(pid: str, display_name: str | None) -> str:
             base = (display_name or pid or "").strip()
             if not base:
                 return "Pack"
-            # Prefer acronym from capitals (SRD, MM, ToA). If none, use first token.
             ac = "".join([c for c in base if c.isupper()])
             if len(ac) >= 2:
                 return ac
             return base.replace("_", " ").split()[0].capitalize()
 
+        self.listRosterResults.clear()
         for e in self._roster_flat:
             name = e.get("name", "?")
             pid  = e.get("pack_id", "?")
-
-            pack = _pack_by_id(pid)
-            system = (e.get("system") or (pack.get("system") if pack else None) or "custom").lower()
-            rank_label = label_map.get(system, "Rank")
-
             rank = e.get("rank")
-            # Build: Name  • RankLabel Rank   [PACK]
+            pack = _pack_by_id(pid)
+            system = (pack or {}).get("system")
+            pack_rank_label = (pack or {}).get("rank_label")
+            # use your global helper at lines 121–126
+            rank_label = _rank_label_for_pack(system, pack_rank_label)
+
             parts = [name]
             if rank:
                 parts.append(f"• {rank_label} {rank}")
+            parts.append(f"[{_short_pack_label(pid, (pack or {}).get('name'))}]")
 
-            pack_badge = _short_pack_label(pid, pack.get("name") if pack else None)
-            parts.append(f"[{pack_badge}]")
-
-            row = "  ".join(parts)
-            QtWidgets.QListWidgetItem(row, self.listRosterResults)
-
+            QtWidgets.QListWidgetItem("  ".join(parts), self.listRosterResults)
 
     def _filter_roster(self, packs: list[dict], enabled_pack_ids: set[str], query: str) -> list[dict]:
         out = []
@@ -1092,20 +1385,142 @@ class GMWindow(QtWidgets.QMainWindow):
                 self._log(f"Roster: failed to load {fp.name}: {ex}")
         return packs
 
+    def _roster_add_selected(self):
+        """
+        Compatibility shim for the Roster 'Add' button.
+        Tries common existing add-to-combat methods first; if none,
+        it attempts a generic add based on selected roster items.
+        """
+        # 1) If you already have a method that performs the add, call it.
+        for name in (
+            "_add_roster_entry",            # (maybe adds from current selection internally)
+            "_add_selected_to_combat",
+            "_add_combatant_from_roster",
+            "_add_combatant",
+            "_roster_add",                  # some builds used this name
+            "_roster_add_entries",
+        ):
+            if hasattr(self, name) and callable(getattr(self, name)):
+                try:
+                    return getattr(self, name)()
+                except TypeError:
+                    # Some variants need no args and operate on current selection; ignore signature mismatches
+                    pass
+
+        # 2) Generic fallback: read selected roster items and try to add them individually.
+        # We try common widget names; only use those that exist.
+        candidates = []
+        for attr in ("listRoster", "listRosterResults", "listRosterEntries", "listRosterList"):
+            w = getattr(self, attr, None)
+            if w is None:
+                continue
+            # QListWidget-style
+            if hasattr(w, "selectedItems"):
+                for it in w.selectedItems():
+                    data = it.data(QtCore.Qt.UserRole)
+                    if data is None:
+                        data = {"name": it.text()}
+                    candidates.append(data)
+            # View/Model-style
+            elif hasattr(w, "selectionModel") and w.selectionModel():
+                for idx in w.selectionModel().selectedRows():
+                    data = idx.data(QtCore.Qt.UserRole)
+                    if data is None:
+                        data = {"name": idx.data()}
+                    candidates.append(data)
+
+        # If we found selections and you have a per-entry adder, use it
+        if candidates:
+            if hasattr(self, "_add_roster_entry") and callable(self._add_roster_entry):
+                for entry in candidates:
+                    try:
+                        self._add_roster_entry(entry)
+                    except TypeError:
+                        # Try name-only variant
+                        self._add_roster_entry(entry.get("name", "Unnamed"))
+                return
+
+        # 3) Nothing matched — avoid crashing; inform gently.
+        QtWidgets.QMessageBox.information(self, "Roster",
+            "Couldn't find a roster add handler.\n\n"
+            "If you have a method that should be invoked, name it one of:\n"
+            "_add_roster_entry, _add_selected_to_combat, _add_combatant_from_roster, _add_combatant, _roster_add."
+        )
 
     def _add_roster_entry(self, entry: dict, count: int, side_override: str | None = None):
-        side = (side_override or entry.get("side_default","opponents")).strip().lower()
+        """Create N instances of a roster entry and add to combat."""
+        side = (side_override or entry.get("side_default", "opponents")).strip().lower()
         base = {
-            "name": entry.get("name","Unnamed"),
+            "name": entry.get("name", "Unnamed"),
             "isEnemy": (side == "opponents"),
             "maxHP": int(entry.get("hp", 10)),
             "currentHP": int(entry.get("hp", 10)),
-            "icon": entry.get("icon",""),
+            "icon": entry.get("icon", ""),
             "statusEffects": list(entry.get("status_defaults", [])),
-            "initiative": int(entry.get("init_mod", 0))
+            # initiative (separate fields)
+            "initMod": int(entry.get("init_mod", 0)),
+            "initRoll": None,
+            "initTotal": None,
         }
         self._add_instances(base, max(1, int(count)))
         self._persist_party()
+
+    def _roll_d20(self) -> int:
+        return random.randint(1, 20)
+
+    def _roll_initiative_all(self):
+        if not self.combatants:
+            return
+        results = []
+        for m in self.combatants:
+            self._ensure_init_fields(m)
+            r = self._roll_d20()
+            mod = int(m.get("initMod", 0))
+            m["initRoll"] = r
+            m["initTotal"] = r + mod
+            results.append(f"{m.get('name','?')} {m['initTotal']} (d20 {r:+d} {mod:+d})")
+        self._sort_initiative()
+        self._log("Initiative rolled: " + ", ".join(results))
+
+    def _reroll_selected(self):
+        rows = sorted({i.row() for i in self.listCombat.selectedIndexes()})
+        if not rows:
+            return
+        results = []
+        for r in rows:
+            if 0 <= r < len(self.combatants):
+                m = self.combatants[r]
+                self._ensure_init_fields(m)
+                roll = self._roll_d20()
+                mod = int(m.get("initMod", 0))
+                m["initRoll"] = roll
+                m["initTotal"] = roll + mod
+                results.append(f"{m.get('name','?')} {m['initTotal']} (d20 {roll:+d} {mod:+d})")
+                self._update_combat_row(r)
+        self._sort_initiative()
+        self._log("Re-rolled: " + ", ".join(results))
+
+    def _sort_initiative(self):
+        if not self.combatants:
+            return
+        def keyf(m):
+            self._ensure_init_fields(m)
+            total = m.get("initTotal")
+            return (total if total is not None else -9999, m.get("name",""))
+        active_name = self.combatants[self.turn_index]["name"] if (0 <= self.turn_index < len(self.combatants)) else None
+        self.combatants.sort(key=keyf, reverse=True)
+        if active_name:
+            for i, m in enumerate(self.combatants):
+                if m.get("name") == active_name:
+                    self.turn_index = i
+                    break
+            else:
+                self.turn_index = 0
+        else:
+            self.turn_index = 0
+        self._refresh_combat_list()
+        self._persist_party()
+        self._log("Turn order updated.")
 
     def _roster_add_selected(self):
         row = self.listRosterResults.currentRow()
@@ -1314,7 +1729,10 @@ class GMWindow(QtWidgets.QMainWindow):
         split.setStretchFactor(0, 3); split.setStretchFactor(1, 2)
         v.addWidget(split, 1)
         tabs.addTab(page, "Notes")
-        self._notes_timer = QtCore.QTimer(self); self._notes_timer.setSingleShot(True); self._notes_timer.setInterval(600)
+        self._notes_timer = QtCore.QTimer(self)
+        self._notes_timer.setSingleShot(True)
+        self._notes_timer.setInterval(600)
+        self._notes_timer.timeout.connect(self._notes_save_and_preview)
         self.selNotes.currentTextChanged.connect(self._notes_file_selected)
         self.btnNoteNew.clicked.connect(self._notes_new_file)
         self.btnNoteRename.clicked.connect(self._notes_rename_file)
@@ -1324,7 +1742,7 @@ class GMWindow(QtWidgets.QMainWindow):
         if not DEFAULT_NOTE.exists(): DEFAULT_NOTE.write_text("# Notes\n\n", encoding="utf-8")
         self._notes_open_file(DEFAULT_NOTE)
 
-        # ===== Notes helpers (add below _build_notes_tab) =====
+        # ===== Notes helpers =====
     def _notes_refresh_list(self):
         names = [p.name for p in sorted(VAULT_DIR.glob("*.md"))]
         cur = getattr(self, "_notes_current_path", DEFAULT_NOTE)
@@ -1370,13 +1788,7 @@ class GMWindow(QtWidgets.QMainWindow):
             self.selNotes.setCurrentIndex(idx)
 
     def _notes_changed(self):
-        # debounce save/preview
-        self._notes_timer.stop()
-        try:
-            self._notes_timer.timeout.disconnect()
-        except Exception:
-            pass
-        self._notes_timer.timeout.connect(self._notes_save_and_preview)
+        # Debounce saves: restart the single-shot timer
         self._notes_timer.start()
 
     def _notes_save_and_preview(self):
@@ -1389,11 +1801,24 @@ class GMWindow(QtWidgets.QMainWindow):
         self._notes_render_preview(txt)
 
     def _notes_render_preview(self, txt: str):
-        # Use Qt’s markdown renderer if available; fallback to plain text
         try:
-            self.prevNotes.setMarkdown(txt)
-        except Exception:
+            if _HAS_PY_MARKDOWN and _MD_LIB:
+                html = _MD_LIB.markdown(
+                    txt,
+                    extensions=["extra", "sane_lists", "toc", "smarty"]  # "extra" includes tables
+                )
+                self.prevNotes.setHtml(_MD_CSS + "<body>" + html + "</body>")
+            else:
+                # Fallback: Qt's built-in Markdown; if that fails, plain text
+                try:
+                    self.prevNotes.setMarkdown(txt)
+                except Exception:
+                    self.prevNotes.setPlainText(txt)
+        except Exception as e:
+            print("[notes] render error:", e)
             self.prevNotes.setPlainText(txt)
+
+
 
     def _notes_new_file(self):
         name, ok = QtWidgets.QInputDialog.getText(self, "New Note", "Filename (without extension):")
@@ -1659,7 +2084,10 @@ class _CombatantEditor(QtWidgets.QDialog):
         if (data or {}).get("isEnemy") is not None:
             self.cbSide.setCurrentText("opponents" if (data or {}).get("isEnemy") else "allies")
         self.edPortrait = QtWidgets.QLineEdit((data or {}).get("icon",""))
-        self.edInit = QtWidgets.QSpinBox(); self.edInit.setRange(-50,50); self.edInit.setValue(int((data or {}).get("initiative",0)))
+        self.edInit = QtWidgets.QSpinBox()
+        self.edInit.setRange(-50, 50)
+        self.edInit.setValue(int((data or {}).get("initMod", (data or {}).get("initiative", 0))))
+        f.addRow("Init Mod", self.edInit)
         btnBrowse = QtWidgets.QPushButton("Browse…"); btnBrowse.clicked.connect(self._browse)
         rowp = QtWidgets.QHBoxLayout(); rowp.addWidget(self.edPortrait,1); rowp.addWidget(btnBrowse)
         f.addRow("Name", self.edName)
@@ -1667,6 +2095,7 @@ class _CombatantEditor(QtWidgets.QDialog):
         f.addRow("Side", self.cbSide)
         f.addRow("Portrait PNG", rowp)
         f.addRow("Initiative (roll)", parent._wrap_spin_with_nudgers(self.edInit))
+        f.addRow("Init Mod", self.edInit)
         box = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok|QtWidgets.QDialogButtonBox.Cancel)
         box.accepted.connect(self.accept); box.rejected.connect(self.reject)
         f.addRow(box)
@@ -1684,8 +2113,5 @@ class _CombatantEditor(QtWidgets.QDialog):
             "hpmax": hpmax,
             "side": self.cbSide.currentText(),
             "portrait": self.edPortrait.text().strip(),
-            "initiative": int(self.edInit.value()),
+            "init_mod": int(self.edInit.value()),
         }
-
-
-
