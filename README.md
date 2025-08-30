@@ -144,7 +144,7 @@ pip install pygame pillow PySide6 markdown
 Start EncounterOS in the command terminal:
 
 ```bash
-python gm_ui.py
+python main.py
 ```
 
 Click Launch Overlay to start the player view. This program can be read
