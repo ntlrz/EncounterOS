@@ -1,0 +1,19 @@
+{
+  "pack_id": "drawsteel_beasts_predators",
+  "name": "Draw Steel – Beasts & Predators",
+  "system": "drawsteel",
+  "entries": [
+    { "id": "pack-wolf", "name": "Pack Wolf", "side_default": "opponents", "stamina": 6, "init_mod": 0, "rank": "1", "tags": ["beast","minion","harrier"], "biomes": ["forest","plains"], "icon": "" },
+    { "id": "rock-boar", "name": "Rock Boar", "side_default": "opponents", "stamina": 9, "init_mod": 0, "rank": "2", "tags": ["beast","minion","brute"], "biomes": ["hills","forest"], "icon": "" },
+    { "id": "cliff-ram", "name": "Cliff Ram", "side_default": "opponents", "stamina": 10, "init_mod": 0, "rank": "2", "tags": ["beast","minion","brute"], "biomes": ["mountains"], "icon": "" },
+    { "id": "vine-serpent", "name": "Vine Serpent", "side_default": "opponents", "stamina": 11, "init_mod": 0, "rank": "2", "tags": ["beast","minion","ambusher"], "biomes": ["jungle","swamp"], "icon": "" },
+    { "id": "dune-hyena", "name": "Dune Hyena", "side_default": "opponents", "stamina": 12, "init_mod": 0, "rank": "3", "tags": ["beast","horde","harrier"], "biomes": ["desert","wasteland"], "icon": "" },
+    { "id": "fen-croc", "name": "Fen Croc", "side_default": "opponents", "stamina": 20, "init_mod": 0, "rank": "3", "tags": ["beast","horde","brute","amphibious"], "biomes": ["swamp","river"], "icon": "" },
+    { "id": "saber-cat", "name": "Saber Cat", "side_default": "opponents", "stamina": 24, "init_mod": 0, "rank": "4", "tags": ["beast","platoon","harrier"], "biomes": ["tundra","hills"], "icon": "" },
+    { "id": "storm-roc", "name": "Storm Roc", "side_default": "opponents", "stamina": 30, "init_mod": 0, "rank": "5", "tags": ["beast","platoon","artillery","flying"], "biomes": ["mountains","cliffs"], "icon": "" },
+    { "id": "alpha-bear", "name": "Alpha Bear", "side_default": "opponents", "stamina": 42, "init_mod": 0, "rank": "6", "tags": ["beast","elite","brute"], "biomes": ["forest","hills"], "icon": "" },
+    { "id": "basalt-rhino", "name": "Basalt Rhino", "side_default": "opponents", "stamina": 58, "init_mod": 0, "rank": "7", "tags": ["beast","elite","brute"], "biomes": ["savanna","badlands"], "icon": "" },
+    { "id": "sky-whale-calf", "name": "Sky Whale Calf", "side_default": "opponents", "stamina": 70, "init_mod": 0, "rank": "8", "tags": ["beast","leader","controller","flying"], "biomes": ["sky","mountains"], "icon": "" },
+    { "id": "ancient-mammoth", "name": "Ancient Mammoth", "side_default": "opponents", "stamina": 118, "init_mod": 0, "rank": "11", "tags": ["beast","solo","brute"], "biomes": ["tundra","taiga"], "icon": "" }
+  ]
+}

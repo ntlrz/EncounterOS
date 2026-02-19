@@ -1,0 +1,31 @@
+{
+  "pack_id": "drawsteel_constructs_war_dogs",
+  "name": "Draw Steel – Constructs & War Dogs",
+  "system": "drawsteel",
+  "entries": [
+    /* -------------------- WAR DOGS -------------------- */
+    { "id": "war-dog-grunt", "name": "War Dog Grunt", "side_default": "opponents", "stamina": 6, "init_mod": 0, "rank": "2", "tags": ["construct","war-dog","minion","brute"], "biomes": [], "icon": "" },
+    { "id": "war-dog-scorcher", "name": "War Dog Scorcher", "side_default": "opponents", "stamina": 6, "init_mod": 0, "rank": "2", "tags": ["construct","war-dog","minion","artillery"], "biomes": [], "icon": "" },
+    { "id": "war-dog-howler", "name": "War Dog Howler", "side_default": "opponents", "stamina": 15, "init_mod": 0, "rank": "3", "tags": ["construct","war-dog","horde","hexer"], "biomes": [], "icon": "" },
+    { "id": "war-dog-skirmisher", "name": "War Dog Skirmisher", "side_default": "opponents", "stamina": 18, "init_mod": 0, "rank": "4", "tags": ["construct","war-dog","horde","harrier"], "biomes": [], "icon": "" },
+    { "id": "war-dog-bruiser", "name": "War Dog Bruiser", "side_default": "opponents", "stamina": 22, "init_mod": 0, "rank": "4", "tags": ["construct","war-dog","horde","brute"], "biomes": [], "icon": "" },
+    { "id": "war-dog-grenadier", "name": "War Dog Grenadier", "side_default": "opponents", "stamina": 29, "init_mod": 0, "rank": "5", "tags": ["construct","war-dog","platoon","artillery"], "biomes": [], "icon": "" },
+    { "id": "war-dog-ravager", "name": "War Dog Ravager", "side_default": "opponents", "stamina": 33, "init_mod": 0, "rank": "5", "tags": ["construct","war-dog","platoon","brute"], "biomes": [], "icon": "" },
+    { "id": "war-dog-sergeant", "name": "War Dog Sergeant", "side_default": "opponents", "stamina": 38, "init_mod": 0, "rank": "6", "tags": ["construct","war-dog","platoon","leader"], "biomes": [], "icon": "" },
+    { "id": "war-dog-sapper", "name": "War Dog Sapper", "side_default": "opponents", "stamina": 52, "init_mod": 0, "rank": "7", "tags": ["construct","war-dog","elite","controller"], "biomes": [], "icon": "" },
+    { "id": "war-dog-bulwark", "name": "War Dog Bulwark", "side_default": "opponents", "stamina": 57, "init_mod": 0, "rank": "7", "tags": ["construct","war-dog","elite","brute"], "biomes": [], "icon": "" },
+    { "id": "war-dog-captain", "name": "War Dog Captain", "side_default": "opponents", "stamina": 66, "init_mod": 0, "rank": "8", "tags": ["construct","war-dog","leader","artillery"], "biomes": [], "icon": "" },
+    { "id": "war-dog-overseer", "name": "War Dog Overseer", "side_default": "opponents", "stamina": 72, "init_mod": 0, "rank": "9", "tags": ["construct","war-dog","leader","controller"], "biomes": [], "icon": "" },
+    { "id": "war-dog-destroyer", "name": "War Dog Destroyer", "side_default": "opponents", "stamina": 80, "init_mod": 0, "rank": "10", "tags": ["construct","war-dog","solo","brute"], "biomes": [], "icon": "" },
+    { "id": "war-dog-hellfire", "name": "War Dog Hellfire", "side_default": "opponents", "stamina": 88, "init_mod": 0, "rank": "11", "tags": ["construct","war-dog","solo","artillery"], "biomes": [], "icon": "" },
+    { "id": "war-dog-commander", "name": "War Dog Commander", "side_default": "opponents", "stamina": 96, "init_mod": 0, "rank": "12", "tags": ["construct","war-dog","solo","leader"], "biomes": [], "icon": "" },
+
+    /* -------------------- CONSTRUCTS -------------------- */
+    { "id": "animated-armor-mk1", "name": "Animated Armor Mk I", "side_default": "opponents", "stamina": 12, "init_mod": 0, "rank": "2", "tags": ["construct","minion","brute"], "biomes": ["dungeon","fortress"], "icon": "" },
+    { "id": "sentry-turret", "name": "Sentry Turret", "side_default": "opponents", "stamina": 14, "init_mod": 0, "rank": "3", "tags": ["construct","horde","artillery"], "biomes": ["dungeon","fortress"], "icon": "" },
+    { "id": "clockwork-hunter", "name": "Clockwork Hunter", "side_default": "opponents", "stamina": 22, "init_mod": 0, "rank": "4", "tags": ["construct","platoon","harrier"], "biomes": ["urban","ruins"], "icon": "" },
+    { "id": "golem-warder", "name": "Golem Warder", "side_default": "opponents", "stamina": 40, "init_mod": 0, "rank": "6", "tags": ["construct","elite","brute"], "biomes": ["temple","dungeon"], "icon": "" },
+    { "id": "arc-lens-engine", "name": "Arc-Lens Engine", "side_default": "opponents", "stamina": 54, "init_mod": 0, "rank": "7", "tags": ["construct","leader","artillery"], "biomes": ["laboratory","fortress"], "icon": "" },
+    { "id": "titan-automaton", "name": "Titan Automaton", "side_default": "opponents", "stamina": 118, "init_mod": 0, "rank": "11", "tags": ["construct","solo","brute"], "biomes": ["fortress","ruins"], "icon": "" }
+  ]
+}

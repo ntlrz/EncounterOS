@@ -1,0 +1,17 @@
+{
+  "pack_id": "drawsteel_aberrations_horrors",
+  "name": "Draw Steel – Aberrations & Horrors",
+  "system": "drawsteel",
+  "entries": [
+    { "id": "gloom-grub", "name": "Gloom Grub", "side_default": "opponents", "stamina": 5, "init_mod": 0, "rank": "1", "tags": ["aberration","minion","ambusher"], "biomes": ["caves","ruins"], "icon": "" },
+    { "id": "eye-stalker", "name": "Eye Stalker", "side_default": "opponents", "stamina": 7, "init_mod": 0, "rank": "2", "tags": ["aberration","minion","artillery","hover"], "biomes": ["dungeon","underground"], "icon": "" },
+    { "id": "chitter-host", "name": "Chitter Host", "side_default": "opponents", "stamina": 16, "init_mod": 0, "rank": "3", "tags": ["aberration","horde","harrier"], "biomes": ["sewers","ruins"], "icon": "" },
+    { "id": "mind-leech", "name": "Mind Leech", "side_default": "opponents", "stamina": 18, "init_mod": 0, "rank": "4", "tags": ["aberration","horde","controller"], "biomes": ["underground","laboratory"], "icon": "" },
+    { "id": "warp-savant", "name": "Warp Savant", "side_default": "opponents", "stamina": 26, "init_mod": 0, "rank": "5", "tags": ["aberration","platoon","hexer"], "biomes": ["ruins","void"], "icon": "" },
+    { "id": "void-gorger", "name": "Void Gorger", "side_default": "opponents", "stamina": 34, "init_mod": 0, "rank": "6", "tags": ["aberration","elite","brute"], "biomes": ["void","deep-caves"], "icon": "" },
+    { "id": "ink-maw", "name": "Ink Maw", "side_default": "opponents", "stamina": 36, "init_mod": 0, "rank": "6", "tags": ["aberration","elite","controller","amphibious"], "biomes": ["coast","cavern-lake"], "icon": "" },
+    { "id": "seer-of-spirals", "name": "Seer of Spirals", "side_default": "opponents", "stamina": 52, "init_mod": 0, "rank": "7", "tags": ["aberration","leader","hexer"], "biomes": ["ruins","sanctum"], "icon": "" },
+    { "id": "horror-of-the-well", "name": "Horror of the Well", "side_default": "opponents", "stamina": 76, "init_mod": 0, "rank": "9", "tags": ["aberration","leader","controller","amphibious"], "biomes": ["sewers","ruins"], "icon": "" },
+    { "id": "eldritch-monolith", "name": "Eldritch Monolith", "side_default": "opponents", "stamina": 124, "init_mod": 0, "rank": "12", "tags": ["aberration","solo","controller"], "biomes": ["void","ancient-site"], "icon": "" }
+  ]
+}

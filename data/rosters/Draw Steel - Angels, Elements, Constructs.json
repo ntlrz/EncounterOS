@@ -1,0 +1,232 @@
+{
+  "pack_id": "drawsteel_elementals_angels_constructs",
+  "name": "Draw Steel – Elementals, Angels & Constructs",
+  "system": "drawsteel",
+  "entries": [
+    /* -------------------- ELEMENTALS -------------------- */
+    {
+      "id": "spark-sprite",
+      "name": "Spark Sprite",
+      "side_default": "opponents",
+      "stamina": 4,
+      "init_mod": 0,
+      "rank": "1",
+      "tags": ["elemental", "air", "minion", "harrier", "flying"],
+      "biomes": ["sky", "mountains"],
+      "icon": ""
+    },
+    {
+      "id": "cinder-wisp",
+      "name": "Cinder Wisp",
+      "side_default": "opponents",
+      "stamina": 5,
+      "init_mod": 0,
+      "rank": "2",
+      "tags": ["elemental", "fire", "minion", "artillery"],
+      "biomes": ["volcano", "desert"],
+      "icon": ""
+    },
+    {
+      "id": "mud-ram",
+      "name": "Mud Ram",
+      "side_default": "opponents",
+      "stamina": 16,
+      "init_mod": 0,
+      "rank": "3",
+      "tags": ["elemental", "earth", "horde", "brute"],
+      "biomes": ["caves", "hills"],
+      "icon": ""
+    },
+    {
+      "id": "wave-binder",
+      "name": "Wave Binder",
+      "side_default": "opponents",
+      "stamina": 18,
+      "init_mod": 0,
+      "rank": "4",
+      "tags": ["elemental", "water", "horde", "controller"],
+      "biomes": ["coast", "river", "swamp"],
+      "icon": ""
+    },
+    {
+      "id": "dust-devourer",
+      "name": "Dust Devourer",
+      "side_default": "opponents",
+      "stamina": 28,
+      "init_mod": 0,
+      "rank": "5",
+      "tags": ["elemental", "air", "platoon", "harrier", "flying"],
+      "biomes": ["desert", "sky"],
+      "icon": ""
+    },
+    {
+      "id": "magma-spitter",
+      "name": "Magma Spitter",
+      "side_default": "opponents",
+      "stamina": 32,
+      "init_mod": 0,
+      "rank": "5",
+      "tags": ["elemental", "fire", "platoon", "artillery"],
+      "biomes": ["volcano", "wasteland"],
+      "icon": ""
+    },
+    {
+      "id": "basalt-sentinel",
+      "name": "Basalt Sentinel",
+      "side_default": "opponents",
+      "stamina": 46,
+      "init_mod": 0,
+      "rank": "6",
+      "tags": ["elemental", "earth", "platoon", "brute"],
+      "biomes": ["mountains", "caves"],
+      "icon": ""
+    },
+    {
+      "id": "tidal-warden",
+      "name": "Tidal Warden",
+      "side_default": "opponents",
+      "stamina": 58,
+      "init_mod": 0,
+      "rank": "7",
+      "tags": ["elemental", "water", "elite", "controller"],
+      "biomes": ["sea", "coast"],
+      "icon": ""
+    },
+    {
+      "id": "storm-helical",
+      "name": "Storm Helical",
+      "side_default": "opponents",
+      "stamina": 76,
+      "init_mod": 0,
+      "rank": "9",
+      "tags": ["elemental", "air", "leader", "harrier", "flying"],
+      "biomes": ["sky", "mountains"],
+      "icon": ""
+    },
+    {
+      "id": "pyre-colossus",
+      "name": "Pyre Colossus",
+      "side_default": "opponents",
+      "stamina": 112,
+      "init_mod": 0,
+      "rank": "11",
+      "tags": ["elemental", "fire", "solo", "brute"],
+      "biomes": ["volcano", "desert"],
+      "icon": ""
+    },
+
+    /* -------------------- ANGELS / CELESTIALS -------------------- */
+    {
+      "id": "dawn-messenger",
+      "name": "Dawn Messenger",
+      "side_default": "allies",
+      "stamina": 26,
+      "init_mod": 0,
+      "rank": "4",
+      "tags": ["celestial", "angel", "platoon", "harrier", "flying"],
+      "biomes": ["temple", "mountains"],
+      "icon": ""
+    },
+    {
+      "id": "spear-of-judgment",
+      "name": "Spear of Judgment",
+      "side_default": "allies",
+      "stamina": 48,
+      "init_mod": 0,
+      "rank": "6",
+      "tags": ["celestial", "angel", "elite", "brute", "flying"],
+      "biomes": ["temple", "mountains"],
+      "icon": ""
+    },
+    {
+      "id": "seraph-archon",
+      "name": "Seraph Archon",
+      "side_default": "allies",
+      "stamina": 88,
+      "init_mod": 0,
+      "rank": "9",
+      "tags": ["celestial", "angel", "leader", "controller", "flying"],
+      "biomes": ["temple", "heavenly"],
+      "icon": ""
+    },
+    {
+      "id": "solar-exemplar",
+      "name": "Solar Exemplar",
+      "side_default": "allies",
+      "stamina": 136,
+      "init_mod": 0,
+      "rank": "12",
+      "tags": ["celestial", "angel", "solo", "leader", "flying"],
+      "biomes": ["heavenly", "mountains"],
+      "icon": ""
+    },
+
+    /* -------------------- CONSTRUCTS -------------------- */
+    {
+      "id": "animated-armor-mk1",
+      "name": "Animated Armor Mk I",
+      "side_default": "opponents",
+      "stamina": 12,
+      "init_mod": 0,
+      "rank": "2",
+      "tags": ["construct", "minion", "brute"],
+      "biomes": ["dungeon", "fortress"],
+      "icon": ""
+    },
+    {
+      "id": "sentry-turret",
+      "name": "Sentry Turret",
+      "side_default": "opponents",
+      "stamina": 14,
+      "init_mod": 0,
+      "rank": "3",
+      "tags": ["construct", "horde", "artillery"],
+      "biomes": ["dungeon", "fortress"],
+      "icon": ""
+    },
+    {
+      "id": "clockwork-hunter",
+      "name": "Clockwork Hunter",
+      "side_default": "opponents",
+      "stamina": 22,
+      "init_mod": 0,
+      "rank": "4",
+      "tags": ["construct", "platoon", "harrier"],
+      "biomes": ["urban", "ruins"],
+      "icon": ""
+    },
+    {
+      "id": "golem-warder",
+      "name": "Golem Warder",
+      "side_default": "opponents",
+      "stamina": 40,
+      "init_mod": 0,
+      "rank": "6",
+      "tags": ["construct", "elite", "brute"],
+      "biomes": ["temple", "dungeon"],
+      "icon": ""
+    },
+    {
+      "id": "arc-lens-engine",
+      "name": "Arc-Lens Engine",
+      "side_default": "opponents",
+      "stamina": 54,
+      "init_mod": 0,
+      "rank": "7",
+      "tags": ["construct", "leader", "artillery"],
+      "biomes": ["laboratory", "fortress"],
+      "icon": ""
+    },
+    {
+      "id": "titan-automaton",
+      "name": "Titan Automaton",
+      "side_default": "opponents",
+      "stamina": 118,
+      "init_mod": 0,
+      "rank": "11",
+      "tags": ["construct", "solo", "brute"],
+      "biomes": ["fortress", "ruins"],
+      "icon": ""
+    }
+  ]
+}

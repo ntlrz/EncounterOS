@@ -1,6 +1,6 @@
 import sys
 from PySide6 import QtWidgets
-from gm_ui import GMWindow
+from gm_window import GMWindow
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

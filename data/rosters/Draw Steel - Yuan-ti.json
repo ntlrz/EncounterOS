@@ -1,0 +1,62 @@
+{
+  "pack_id": "drawsteel_yuanti",
+  "name": "Draw Steel – Yuan-ti",
+  "system": "drawsteel",
+  "entries": [
+    {
+      "id": "yuanti-initiate",
+      "name": "Yuan-ti Initiate",
+      "side_default": "opponents",
+      "stamina": 8,
+      "init_mod": 0,
+      "rank": "2",
+      "tags": ["humanoid", "yuan-ti", "minion", "harrier"],
+      "biomes": ["temple", "jungle"],
+      "icon": ""
+    },
+    {
+      "id": "yuanti-warrior",
+      "name": "Yuan-ti Warrior",
+      "side_default": "opponents",
+      "stamina": 10,
+      "init_mod": 0,
+      "rank": "3",
+      "tags": ["humanoid", "yuan-ti", "horde", "brute"],
+      "biomes": ["temple", "jungle"],
+      "icon": ""
+    },
+    {
+      "id": "yuanti-hexblade",
+      "name": "Yuan-ti Hexblade",
+      "side_default": "opponents",
+      "stamina": 16,
+      "init_mod": 0,
+      "rank": "4",
+      "tags": ["humanoid", "yuan-ti", "platoon", "hexer"],
+      "biomes": ["temple", "jungle"],
+      "icon": ""
+    },
+    {
+      "id": "yuanti-malison",
+      "name": "Yuan-ti Malison",
+      "side_default": "opponents",
+      "stamina": 24,
+      "init_mod": 0,
+      "rank": "5",
+      "tags": ["humanoid", "yuan-ti", "elite", "controller"],
+      "biomes": ["temple", "jungle"],
+      "icon": ""
+    },
+    {
+      "id": "yuanti-anathema",
+      "name": "Yuan-ti Anathema",
+      "side_default": "opponents",
+      "stamina": 66,
+      "init_mod": 0,
+      "rank": "9",
+      "tags": ["humanoid", "yuan-ti", "solo", "leader"],
+      "biomes": ["temple", "jungle"],
+      "icon": ""
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "pack_id": "drawsteel_dragons",
+  "name": "Draw Steel – Dragons",
+  "system": "drawsteel",
+  "entries": [
+    {
+      "id": "wyrmling",
+      "name": "Dragon Wyrmling",
+      "side_default": "opponents",
+      "stamina": 22,
+      "init_mod": 0,
+      "rank": "4",
+      "tags": ["dragon", "minion", "brute", "flying"],
+      "biomes": ["mountains", "caves"],
+      "icon": ""
+    },
+    {
+      "id": "young-dragon",
+      "name": "Young Dragon",
+      "side_default": "opponents",
+      "stamina": 45,
+      "init_mod": 0,
+      "rank": "6",
+      "tags": ["dragon", "platoon", "harrier", "flying"],
+      "biomes": ["mountains", "forest"],
+      "icon": ""
+    },
+    {
+      "id": "adult-dragon",
+      "name": "Adult Dragon",
+      "side_default": "opponents",
+      "stamina": 84,
+      "init_mod": 0,
+      "rank": "9",
+      "tags": ["dragon", "elite", "brute", "flying"],
+      "biomes": ["mountains", "caves"],
+      "icon": ""
+    },
+    {
+      "id": "ancient-dragon",
+      "name": "Ancient Dragon",
+      "side_default": "opponents",
+      "stamina": 130,
+      "init_mod": 0,
+      "rank": "12",
+      "tags": ["dragon", "solo", "leader", "flying"],
+      "biomes": ["mountains", "ruins"],
+      "icon": ""
+    }
+  ]
+}

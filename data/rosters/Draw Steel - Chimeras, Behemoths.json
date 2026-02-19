@@ -1,0 +1,15 @@
+{
+  "pack_id": "drawsteel_chimeras_behemoths",
+  "name": "Draw Steel – Chimeras, Manticores & Behemoths",
+  "system": "drawsteel",
+  "entries": [
+    { "id": "manticore-pride", "name": "Manticore Pride", "side_default": "opponents", "stamina": 28, "init_mod": 0, "rank": "5", "tags": ["monstrosity","platoon","artillery","flying"], "biomes": ["hills","desert"], "icon": "" },
+    { "id": "chimera-raider", "name": "Chimera Raider", "side_default": "opponents", "stamina": 36, "init_mod": 0, "rank": "6", "tags": ["monstrosity","elite","harrier","flying"], "biomes": ["mountains","wasteland"], "icon": "" },
+    { "id": "basilisks-wrath", "name": "Basilisk’s Wrath", "side_default": "opponents", "stamina": 42, "init_mod": 0, "rank": "6", "tags": ["monstrosity","elite","controller"], "biomes": ["desert","caves"], "icon": "" },
+    { "id": "wyvern-stalker", "name": "Wyvern Stalker", "side_default": "opponents", "stamina": 52, "init_mod": 0, "rank": "7", "tags": ["monstrosity","elite","harrier","flying"], "biomes": ["mountains","cliffs"], "icon": "" },
+    { "id": "hydra-brood", "name": "Hydra Brood", "side_default": "opponents", "stamina": 78, "init_mod": 0, "rank": "9", "tags": ["monstrosity","leader","brute","amphibious"], "biomes": ["swamp","river-delta"], "icon": "" },
+    { "id": "colossal-boreal", "name": "Colossal Boreal", "side_default": "opponents", "stamina": 96, "init_mod": 0, "rank": "10", "tags": ["monstrosity","leader","controller"], "biomes": ["tundra","mountains"], "icon": "" },
+    { "id": "abyssal-roc", "name": "Abyssal Roc", "side_default": "opponents", "stamina": 118, "init_mod": 0, "rank": "11", "tags": ["monstrosity","solo","harrier","flying"], "biomes": ["mountains","storm"], "icon": "" },
+    { "id": "storm-hydra-elder", "name": "Storm Hydra Elder", "side_default": "opponents", "stamina": 136, "init_mod": 0, "rank": "12", "tags": ["monstrosity","solo","brute","amphibious"], "biomes": ["swamp","coast"], "icon": "" }
+  ]
+}

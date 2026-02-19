@@ -1,0 +1,260 @@
+{
+  "pack_id": "drawsteel_demons",
+  "name": "Draw Steel – Demons",
+  "system": "drawsteel",
+  "entries": [
+    {
+      "id": "ensnarer",
+      "name": "Ensnarer",
+      "side_default": "opponents",
+      "stamina": 5,
+      "init_mod": 0,
+      "rank": "3",
+      "tags": ["fiend", "demon", "minion", "brute"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "frenzied",
+      "name": "Frenzied",
+      "side_default": "opponents",
+      "stamina": 4,
+      "init_mod": 0,
+      "rank": "3",
+      "tags": ["fiend", "demon", "minion", "harrier"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "pitling",
+      "name": "Pitling",
+      "side_default": "opponents",
+      "stamina": 6,
+      "init_mod": 0,
+      "rank": "3",
+      "tags": ["fiend", "demon", "minion", "artillery"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "bendrak",
+      "name": "Bendrak",
+      "side_default": "opponents",
+      "stamina": 15,
+      "init_mod": 0,
+      "rank": "4",
+      "tags": ["fiend", "demon", "horde", "hexer"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "remasch",
+      "name": "Remasch",
+      "side_default": "opponents",
+      "stamina": 20,
+      "init_mod": 0,
+      "rank": "4",
+      "tags": ["fiend", "demon", "horde", "ambusher"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "muceron",
+      "name": "Muceron",
+      "side_default": "opponents",
+      "stamina": 19,
+      "init_mod": 0,
+      "rank": "5",
+      "tags": ["fiend", "demon", "horde", "brute"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "dreadling",
+      "name": "Dreadling",
+      "side_default": "opponents",
+      "stamina": 33,
+      "init_mod": 0,
+      "rank": "6",
+      "tags": ["fiend", "demon", "platoon", "artillery"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "harrower",
+      "name": "Harrower",
+      "side_default": "opponents",
+      "stamina": 39,
+      "init_mod": 0,
+      "rank": "6",
+      "tags": ["fiend", "demon", "platoon", "harrier"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "pit-captain",
+      "name": "Pit Captain",
+      "side_default": "opponents",
+      "stamina": 44,
+      "init_mod": 0,
+      "rank": "7",
+      "tags": ["fiend", "demon", "platoon", "leader"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "bloodreaver",
+      "name": "Bloodreaver",
+      "side_default": "opponents",
+      "stamina": 57,
+      "init_mod": 0,
+      "rank": "8",
+      "tags": ["fiend", "demon", "elite", "brute"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "soulflayer",
+      "name": "Soulflayer",
+      "side_default": "opponents",
+      "stamina": 62,
+      "init_mod": 0,
+      "rank": "8",
+      "tags": ["fiend", "demon", "elite", "hexer"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "razorwing",
+      "name": "Razorwing",
+      "side_default": "opponents",
+      "stamina": 52,
+      "init_mod": 0,
+      "rank": "8",
+      "tags": ["fiend", "demon", "elite", "harrier"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "hell-majors",
+      "name": "Hell Majors",
+      "side_default": "opponents",
+      "stamina": 70,
+      "init_mod": 0,
+      "rank": "9",
+      "tags": ["fiend", "demon", "leader", "artillery"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "doomcaller",
+      "name": "Doomcaller",
+      "side_default": "opponents",
+      "stamina": 75,
+      "init_mod": 0,
+      "rank": "9",
+      "tags": ["fiend", "demon", "leader", "hexer"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "abyssal-champion",
+      "name": "Abyssal Champion",
+      "side_default": "opponents",
+      "stamina": 80,
+      "init_mod": 0,
+      "rank": "10",
+      "tags": ["fiend", "demon", "leader", "brute"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "void-hunter",
+      "name": "Void Hunter",
+      "side_default": "opponents",
+      "stamina": 86,
+      "init_mod": 0,
+      "rank": "10",
+      "tags": ["fiend", "demon", "leader", "harrier"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "pit-dominator",
+      "name": "Pit Dominator",
+      "side_default": "opponents",
+      "stamina": 91,
+      "init_mod": 0,
+      "rank": "11",
+      "tags": ["fiend", "demon", "leader", "controller"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "abyssal-behemoth",
+      "name": "Abyssal Behemoth",
+      "side_default": "opponents",
+      "stamina": 120,
+      "init_mod": 0,
+      "rank": "12",
+      "tags": ["fiend", "demon", "solo", "brute"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "soulstorm",
+      "name": "Soulstorm",
+      "side_default": "opponents",
+      "stamina": 108,
+      "init_mod": 0,
+      "rank": "12",
+      "tags": ["fiend", "demon", "solo", "artillery"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "abyssal-overlord",
+      "name": "Abyssal Overlord",
+      "side_default": "opponents",
+      "stamina": 132,
+      "init_mod": 0,
+      "rank": "13",
+      "tags": ["fiend", "demon", "solo", "leader"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "pit-tyrant",
+      "name": "Pit Tyrant",
+      "side_default": "opponents",
+      "stamina": 140,
+      "init_mod": 0,
+      "rank": "14",
+      "tags": ["fiend", "demon", "solo", "controller"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "void-reaver",
+      "name": "Void Reaver",
+      "side_default": "opponents",
+      "stamina": 149,
+      "init_mod": 0,
+      "rank": "15",
+      "tags": ["fiend", "demon", "solo", "harrier"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "hell-archon",
+      "name": "Hell Archon",
+      "side_default": "opponents",
+      "stamina": 159,
+      "init_mod": 0,
+      "rank": "16",
+      "tags": ["fiend", "demon", "solo", "hexer"],
+      "biomes": [],
+      "icon": ""
+    }
+  ]
+}

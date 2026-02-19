@@ -1,0 +1,139 @@
+{
+  "pack_id": "drawsteel_giants",
+  "name": "Draw Steel – Giants",
+  "system": "drawsteel",
+  "entries": [
+    {
+      "id": "hill-giant-thug",
+      "name": "Hill Giant Thug",
+      "side_default": "opponents",
+      "stamina": 14,
+      "init_mod": 0,
+      "rank": "3",
+      "tags": ["giant", "minion", "brute"],
+      "biomes": ["hills"],
+      "icon": ""
+    },
+    {
+      "id": "stone-giant-scout",
+      "name": "Stone Giant Scout",
+      "side_default": "opponents",
+      "stamina": 16,
+      "init_mod": 0,
+      "rank": "3",
+      "tags": ["giant", "minion", "harrier"],
+      "biomes": ["mountains", "caves"],
+      "icon": ""
+    },
+    {
+      "id": "frost-giant-warrior",
+      "name": "Frost Giant Warrior",
+      "side_default": "opponents",
+      "stamina": 28,
+      "init_mod": 0,
+      "rank": "4",
+      "tags": ["giant", "horde", "brute"],
+      "biomes": ["tundra", "arctic"],
+      "icon": ""
+    },
+    {
+      "id": "fire-giant-hurler",
+      "name": "Fire Giant Hurler",
+      "side_default": "opponents",
+      "stamina": 30,
+      "init_mod": 0,
+      "rank": "4",
+      "tags": ["giant", "horde", "artillery"],
+      "biomes": ["mountains", "volcano"],
+      "icon": ""
+    },
+    {
+      "id": "cloud-giant-hunter",
+      "name": "Cloud Giant Hunter",
+      "side_default": "opponents",
+      "stamina": 38,
+      "init_mod": 0,
+      "rank": "5",
+      "tags": ["giant", "platoon", "harrier"],
+      "biomes": ["mountains", "clouds"],
+      "icon": ""
+    },
+    {
+      "id": "storm-giant-seer",
+      "name": "Storm Giant Seer",
+      "side_default": "opponents",
+      "stamina": 42,
+      "init_mod": 0,
+      "rank": "5",
+      "tags": ["giant", "platoon", "controller"],
+      "biomes": ["coastal", "mountains"],
+      "icon": ""
+    },
+    {
+      "id": "giant-chieftain",
+      "name": "Giant Chieftain",
+      "side_default": "opponents",
+      "stamina": 50,
+      "init_mod": 0,
+      "rank": "6",
+      "tags": ["giant", "platoon", "leader"],
+      "biomes": ["hills", "mountains"],
+      "icon": ""
+    },
+    {
+      "id": "runecarved-giant",
+      "name": "Runecarved Giant",
+      "side_default": "opponents",
+      "stamina": 65,
+      "init_mod": 0,
+      "rank": "7",
+      "tags": ["giant", "elite", "hexer"],
+      "biomes": ["mountains", "ruins"],
+      "icon": ""
+    },
+    {
+      "id": "ironfist-giant",
+      "name": "Ironfist Giant",
+      "side_default": "opponents",
+      "stamina": 72,
+      "init_mod": 0,
+      "rank": "7",
+      "tags": ["giant", "elite", "brute"],
+      "biomes": ["mountains", "caves"],
+      "icon": ""
+    },
+    {
+      "id": "giant-lord",
+      "name": "Giant Lord",
+      "side_default": "opponents",
+      "stamina": 88,
+      "init_mod": 0,
+      "rank": "8",
+      "tags": ["giant", "leader", "controller"],
+      "biomes": ["hills", "mountains"],
+      "icon": ""
+    },
+    {
+      "id": "giant-overseer",
+      "name": "Giant Overseer",
+      "side_default": "opponents",
+      "stamina": 95,
+      "init_mod": 0,
+      "rank": "9",
+      "tags": ["giant", "leader", "brute"],
+      "biomes": ["mountains", "tundra"],
+      "icon": ""
+    },
+    {
+      "id": "primordial-giant",
+      "name": "Primordial Giant",
+      "side_default": "opponents",
+      "stamina": 130,
+      "init_mod": 0,
+      "rank": "11",
+      "tags": ["giant", "solo", "brute"],
+      "biomes": ["mountains", "volcano", "storm"],
+      "icon": ""
+    }
+  ]
+}

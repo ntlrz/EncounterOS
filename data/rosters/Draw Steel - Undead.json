@@ -1,0 +1,238 @@
+{
+  "pack_id": "drawsteel_undead",
+  "name": "Draw Steel – Undead",
+  "system": "drawsteel",
+  "entries": [
+    {
+      "id": "grave-thrall",
+      "name": "Grave Thrall",
+      "side_default": "opponents",
+      "stamina": 6,
+      "init_mod": 0,
+      "rank": "2",
+      "tags": ["undead", "minion", "brute"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "bone-skirmisher",
+      "name": "Bone Skirmisher",
+      "side_default": "opponents",
+      "stamina": 5,
+      "init_mod": 0,
+      "rank": "2",
+      "tags": ["undead", "minion", "harrier"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "crypt-archer",
+      "name": "Crypt Archer",
+      "side_default": "opponents",
+      "stamina": 5,
+      "init_mod": 0,
+      "rank": "2",
+      "tags": ["undead", "minion", "artillery"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "rot-ghoul",
+      "name": "Rot Ghoul",
+      "side_default": "opponents",
+      "stamina": 16,
+      "init_mod": 0,
+      "rank": "3",
+      "tags": ["undead", "horde", "ambusher"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "tomb-hexer",
+      "name": "Tomb Hexer",
+      "side_default": "opponents",
+      "stamina": 18,
+      "init_mod": 0,
+      "rank": "4",
+      "tags": ["undead", "horde", "hexer"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "bone-crusher",
+      "name": "Bone Crusher",
+      "side_default": "opponents",
+      "stamina": 21,
+      "init_mod": 0,
+      "rank": "4",
+      "tags": ["undead", "horde", "brute"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "grave-slinger",
+      "name": "Grave Slinger",
+      "side_default": "opponents",
+      "stamina": 30,
+      "init_mod": 0,
+      "rank": "5",
+      "tags": ["undead", "platoon", "artillery"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "wight-stalker",
+      "name": "Wight Stalker",
+      "side_default": "opponents",
+      "stamina": 34,
+      "init_mod": 0,
+      "rank": "5",
+      "tags": ["undead", "platoon", "harrier"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "crypt-captain",
+      "name": "Crypt Captain",
+      "side_default": "opponents",
+      "stamina": 38,
+      "init_mod": 0,
+      "rank": "6",
+      "tags": ["undead", "platoon", "leader"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "death-knight-lieutenant",
+      "name": "Death Knight Lieutenant",
+      "side_default": "opponents",
+      "stamina": 50,
+      "init_mod": 0,
+      "rank": "7",
+      "tags": ["undead", "elite", "brute"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "lich-adept",
+      "name": "Lich Adept",
+      "side_default": "opponents",
+      "stamina": 56,
+      "init_mod": 0,
+      "rank": "7",
+      "tags": ["undead", "elite", "hexer"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "spectral-reaver",
+      "name": "Spectral Reaver",
+      "side_default": "opponents",
+      "stamina": 46,
+      "init_mod": 0,
+      "rank": "7",
+      "tags": ["undead", "elite", "harrier"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "barrow-commander",
+      "name": "Barrow Commander",
+      "side_default": "opponents",
+      "stamina": 62,
+      "init_mod": 0,
+      "rank": "8",
+      "tags": ["undead", "leader", "controller"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "mummy-lordling",
+      "name": "Mummy Lordling",
+      "side_default": "opponents",
+      "stamina": 66,
+      "init_mod": 0,
+      "rank": "8",
+      "tags": ["undead", "leader", "hexer"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "grave-titan",
+      "name": "Grave Titan",
+      "side_default": "opponents",
+      "stamina": 72,
+      "init_mod": 0,
+      "rank": "9",
+      "tags": ["undead", "leader", "brute"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "cairn-reaper",
+      "name": "Cairn Reaper",
+      "side_default": "opponents",
+      "stamina": 78,
+      "init_mod": 0,
+      "rank": "9",
+      "tags": ["undead", "leader", "harrier"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "crypt-tyrant",
+      "name": "Crypt Tyrant",
+      "side_default": "opponents",
+      "stamina": 84,
+      "init_mod": 0,
+      "rank": "10",
+      "tags": ["undead", "leader", "controller"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "tomb-colossus",
+      "name": "Tomb Colossus",
+      "side_default": "opponents",
+      "stamina": 112,
+      "init_mod": 0,
+      "rank": "11",
+      "tags": ["undead", "solo", "brute"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "wailing-tempest",
+      "name": "Wailing Tempest",
+      "side_default": "opponents",
+      "stamina": 100,
+      "init_mod": 0,
+      "rank": "11",
+      "tags": ["undead", "solo", "artillery"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "phylactery-lord",
+      "name": "Phylactery Lord",
+      "side_default": "opponents",
+      "stamina": 124,
+      "init_mod": 0,
+      "rank": "12",
+      "tags": ["undead", "solo", "leader"],
+      "biomes": [],
+      "icon": ""
+    },
+    {
+      "id": "shadow-sovereign",
+      "name": "Shadow Sovereign",
+      "side_default": "opponents",
+      "stamina": 132,
+      "init_mod": 0,
+      "rank": "13",
+      "tags": ["undead", "solo", "controller"],
+      "biomes": [],
+      "icon": ""
+    }
+  ]
+}

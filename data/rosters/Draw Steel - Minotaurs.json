@@ -1,0 +1,62 @@
+{
+  "pack_id": "drawsteel_minotaurs",
+  "name": "Draw Steel – Minotaurs",
+  "system": "drawsteel",
+  "entries": [
+    {
+      "id": "minotaur-brawler",
+      "name": "Minotaur Brawler",
+      "side_default": "opponents",
+      "stamina": 14,
+      "init_mod": 0,
+      "rank": "3",
+      "tags": ["monstrosity", "minotaur", "horde", "brute"],
+      "biomes": ["labyrinth", "ruins"],
+      "icon": ""
+    },
+    {
+      "id": "minotaur-hunter",
+      "name": "Minotaur Hunter",
+      "side_default": "opponents",
+      "stamina": 16,
+      "init_mod": 0,
+      "rank": "3",
+      "tags": ["monstrosity", "minotaur", "horde", "harrier"],
+      "biomes": ["labyrinth", "ruins"],
+      "icon": ""
+    },
+    {
+      "id": "minotaur-shaman",
+      "name": "Minotaur Shaman",
+      "side_default": "opponents",
+      "stamina": 22,
+      "init_mod": 0,
+      "rank": "4",
+      "tags": ["monstrosity", "minotaur", "platoon", "hexer"],
+      "biomes": ["labyrinth", "ruins"],
+      "icon": ""
+    },
+    {
+      "id": "minotaur-champion",
+      "name": "Minotaur Champion",
+      "side_default": "opponents",
+      "stamina": 34,
+      "init_mod": 0,
+      "rank": "6",
+      "tags": ["monstrosity", "minotaur", "elite", "brute"],
+      "biomes": ["labyrinth", "ruins"],
+      "icon": ""
+    },
+    {
+      "id": "minotaur-warlord",
+      "name": "Minotaur Warlord",
+      "side_default": "opponents",
+      "stamina": 50,
+      "init_mod": 0,
+      "rank": "8",
+      "tags": ["monstrosity", "minotaur", "leader", "controller"],
+      "biomes": ["labyrinth", "ruins"],
+      "icon": ""
+    }
+  ]
+}

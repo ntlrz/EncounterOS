@@ -1,0 +1,21 @@
+{
+  "pack_id": "drawsteel_humans_armies",
+  "name": "Draw Steel – Humans: Bandits & Cultists",
+  "system": "drawsteel",
+  "entries": [
+    /* -------------------- BANDITS -------------------- */
+    { "id": "bandit-cutpurse", "name": "Bandit Cutpurse", "side_default": "opponents", "stamina": 6, "init_mod": 0, "rank": "1", "tags": ["humanoid","human","bandit","minion","harrier"], "biomes": ["urban","roads"], "icon": "" },
+    { "id": "bandit-thug", "name": "Bandit Thug", "side_default": "opponents", "stamina": 7, "init_mod": 0, "rank": "1", "tags": ["humanoid","human","bandit","minion","brute"], "biomes": ["urban","roads"], "icon": "" },
+    { "id": "bandit-archer", "name": "Bandit Archer", "side_default": "opponents", "stamina": 8, "init_mod": 0, "rank": "2", "tags": ["humanoid","human","bandit","horde","artillery"], "biomes": ["urban","roads"], "icon": "" },
+    { "id": "bandit-raider", "name": "Bandit Raider", "side_default": "opponents", "stamina": 12, "init_mod": 0, "rank": "2", "tags": ["humanoid","human","bandit","horde","brute"], "biomes": ["roads","hills"], "icon": "" },
+    { "id": "bandit-captain", "name": "Bandit Captain", "side_default": "opponents", "stamina": 20, "init_mod": 0, "rank": "3", "tags": ["humanoid","human","bandit","leader"], "biomes": ["urban","roads"], "icon": "" },
+    { "id": "bandit-warlord", "name": "Bandit Warlord", "side_default": "opponents", "stamina": 32, "init_mod": 0, "rank": "5", "tags": ["humanoid","human","bandit","elite","leader"], "biomes": ["urban","roads"], "icon": "" },
+
+    /* -------------------- CULTISTS -------------------- */
+    { "id": "cult-initiate", "name": "Cult Initiate", "side_default": "opponents", "stamina": 5, "init_mod": 0, "rank": "1", "tags": ["humanoid","human","cultist","minion","brute"], "biomes": ["urban","temple"], "icon": "" },
+    { "id": "cult-fanatic", "name": "Cult Fanatic", "side_default": "opponents", "stamina": 7, "init_mod": 0, "rank": "2", "tags": ["humanoid","human","cultist","horde","hexer"], "biomes": ["urban","temple"], "icon": "" },
+    { "id": "cult-assassin", "name": "Cult Assassin", "side_default": "opponents", "stamina": 12, "init_mod": 0, "rank": "3", "tags": ["humanoid","human","cultist","platoon","harrier"], "biomes": ["urban","temple"], "icon": "" },
+    { "id": "cult-high-priest", "name": "Cult High Priest", "side_default": "opponents", "stamina": 24, "init_mod": 0, "rank": "5", "tags": ["humanoid","human","cultist","leader","hexer"], "biomes": ["urban","temple"], "icon": "" },
+    { "id": "cult-demonhost", "name": "Cult Demonhost", "side_default": "opponents", "stamina": 42, "init_mod": 0, "rank": "7", "tags": ["humanoid","human","cultist","elite","controller"], "biomes": ["urban","temple"], "icon": "" }
+  ]
+}

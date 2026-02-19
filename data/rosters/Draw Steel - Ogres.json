@@ -1,0 +1,62 @@
+{
+  "pack_id": "drawsteel_ogres",
+  "name": "Draw Steel – Ogres",
+  "system": "drawsteel",
+  "entries": [
+    {
+      "id": "ogre-thug",
+      "name": "Ogre Thug",
+      "side_default": "opponents",
+      "stamina": 14,
+      "init_mod": 0,
+      "rank": "2",
+      "tags": ["giantkin", "ogre", "minion", "brute"],
+      "biomes": ["hills", "swamp"],
+      "icon": ""
+    },
+    {
+      "id": "ogre-hurler",
+      "name": "Ogre Hurler",
+      "side_default": "opponents",
+      "stamina": 16,
+      "init_mod": 0,
+      "rank": "3",
+      "tags": ["giantkin", "ogre", "horde", "artillery"],
+      "biomes": ["hills", "caves"],
+      "icon": ""
+    },
+    {
+      "id": "ogre-smashlord",
+      "name": "Ogre Smashlord",
+      "side_default": "opponents",
+      "stamina": 26,
+      "init_mod": 0,
+      "rank": "4",
+      "tags": ["giantkin", "ogre", "platoon", "brute"],
+      "biomes": ["hills", "mountains"],
+      "icon": ""
+    },
+    {
+      "id": "ogre-war-shaman",
+      "name": "Ogre War Shaman",
+      "side_default": "opponents",
+      "stamina": 34,
+      "init_mod": 0,
+      "rank": "5",
+      "tags": ["giantkin", "ogre", "platoon", "hexer"],
+      "biomes": ["hills", "swamp"],
+      "icon": ""
+    },
+    {
+      "id": "ogre-tyrant",
+      "name": "Ogre Tyrant",
+      "side_default": "opponents",
+      "stamina": 52,
+      "init_mod": 0,
+      "rank": "7",
+      "tags": ["giantkin", "ogre", "elite", "leader"],
+      "biomes": ["hills", "mountains"],
+      "icon": ""
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "pack_id": "drawsteel_fey_tricksters",
+  "name": "Draw Steel – Fey & Tricksters",
+  "system": "drawsteel",
+  "entries": [
+    { "id": "moss-sprite", "name": "Moss Sprite", "side_default": "opponents", "stamina": 4, "init_mod": 0, "rank": "1", "tags": ["fey","minion","harrier"], "biomes": ["forest"], "icon": "" },
+    { "id": "briar-puck", "name": "Briar Puck", "side_default": "opponents", "stamina": 5, "init_mod": 0, "rank": "1", "tags": ["fey","minion","controller"], "biomes": ["forest"], "icon": "" },
+    { "id": "will-o-warden", "name": "Will-o’-Warden", "side_default": "opponents", "stamina": 8, "init_mod": 0, "rank": "2", "tags": ["fey","minion","artillery","flying"], "biomes": ["swamp","moor"], "icon": "" },
+    { "id": "hazel-hunter", "name": "Hazel Hunter", "side_default": "opponents", "stamina": 14, "init_mod": 0, "rank": "3", "tags": ["fey","horde","harrier"], "biomes": ["forest","hills"], "icon": "" },
+    { "id": "glamour-hexer", "name": "Glamour Hexer", "side_default": "opponents", "stamina": 16, "init_mod": 0, "rank": "3", "tags": ["fey","horde","hexer"], "biomes": ["forest","faerie"], "icon": "" },
+    { "id": "satyr-reveler", "name": "Satyr Reveler", "side_default": "opponents", "stamina": 18, "init_mod": 0, "rank": "4", "tags": ["fey","platoon","controller"], "biomes": ["forest","glade"], "icon": "" },
+    { "id": "redcap-ripper", "name": "Redcap Ripper", "side_default": "opponents", "stamina": 22, "init_mod": 0, "rank": "4", "tags": ["fey","platoon","brute"], "biomes": ["heath","ruins"], "icon": "" },
+    { "id": "dryad-warden", "name": "Dryad Warden", "side_default": "opponents", "stamina": 28, "init_mod": 0, "rank": "5", "tags": ["fey","platoon","controller"], "biomes": ["forest"], "icon": "" },
+    { "id": "hag-broodmother", "name": "Hag Broodmother", "side_default": "opponents", "stamina": 44, "init_mod": 0, "rank": "7", "tags": ["fey","elite","hexer","leader"], "biomes": ["swamp","forest"], "icon": "" },
+    { "id": "wild-hunt-caller", "name": "Wild Hunt Caller", "side_default": "opponents", "stamina": 60, "init_mod": 0, "rank": "8", "tags": ["fey","leader","harrier"], "biomes": ["forest","faerie"], "icon": "" },
+    { "id": "archfey-emissary", "name": "Archfey Emissary", "side_default": "opponents", "stamina": 92, "init_mod": 0, "rank": "10", "tags": ["fey","leader","controller","flying"], "biomes": ["faerie","glade"], "icon": "" },
+    { "id": "court-of-thorns", "name": "Court of Thorns", "side_default": "opponents", "stamina": 128, "init_mod": 0, "rank": "12", "tags": ["fey","solo","controller"], "biomes": ["faerie","forest"], "icon": "" }
+  ]
+}

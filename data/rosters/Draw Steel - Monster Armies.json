@@ -1,0 +1,68 @@
+{
+  "pack_id": "drawsteel_monsterfolk_armies",
+  "name": "Draw Steel – Monsterfolk Armies",
+  "system": "drawsteel",
+  "entries": [
+    /* -------------------- ORCS -------------------- */
+    { "id": "orc-raider", "name": "Orc Raider", "side_default": "opponents", "stamina": 7, "init_mod": 0, "rank": "2", "tags": ["humanoid","orc","minion","brute"], "biomes": ["hills","plains"], "icon": "" },
+    { "id": "orc-skirmisher", "name": "Orc Skirmisher", "side_default": "opponents", "stamina": 8, "init_mod": 0, "rank": "2", "tags": ["humanoid","orc","minion","harrier"], "biomes": ["hills","forest"], "icon": "" },
+    { "id": "orc-slinger", "name": "Orc Slinger", "side_default": "opponents", "stamina": 9, "init_mod": 0, "rank": "2", "tags": ["humanoid","orc","minion","artillery"], "biomes": ["plains","hills"], "icon": "" },
+    { "id": "orc-berserker", "name": "Orc Berserker", "side_default": "opponents", "stamina": 20, "init_mod": 0, "rank": "3", "tags": ["humanoid","orc","horde","brute"], "biomes": ["hills","tundra"], "icon": "" },
+    { "id": "orc-shaman", "name": "Orc Shaman", "side_default": "opponents", "stamina": 18, "init_mod": 0, "rank": "3", "tags": ["humanoid","orc","horde","hexer"], "biomes": ["hills","plains"], "icon": "" },
+    { "id": "orc-captain", "name": "Orc Captain", "side_default": "opponents", "stamina": 34, "init_mod": 0, "rank": "5", "tags": ["humanoid","orc","platoon","leader"], "biomes": ["hills","plains"], "icon": "" },
+    { "id": "orc-warchief", "name": "Orc Warchief", "side_default": "opponents", "stamina": 45, "init_mod": 0, "rank": "6", "tags": ["humanoid","orc","leader","brute"], "biomes": ["hills","plains"], "icon": "" },
+    { "id": "orc-overlord", "name": "Orc Overlord", "side_default": "opponents", "stamina": 70, "init_mod": 0, "rank": "8", "tags": ["humanoid","orc","leader","controller"], "biomes": ["hills","plains"], "icon": "" },
+    { "id": "orc-champion", "name": "Orc Champion", "side_default": "opponents", "stamina": 84, "init_mod": 0, "rank": "9", "tags": ["humanoid","orc","elite","brute"], "biomes": ["plains","hills"], "icon": "" },
+    { "id": "orc-demigod", "name": "Orc Demigod", "side_default": "opponents", "stamina": 130, "init_mod": 0, "rank": "12", "tags": ["humanoid","orc","solo","leader"], "biomes": ["hills","mountains"], "icon": "" },
+
+    /* -------------------- HOBGOBLINS -------------------- */
+    { "id": "hobgoblin-soldier", "name": "Hobgoblin Soldier", "side_default": "opponents", "stamina": 8, "init_mod": 0, "rank": "2", "tags": ["humanoid","hobgoblin","minion","brute"], "biomes": ["plains","fortress"], "icon": "" },
+    { "id": "hobgoblin-archer", "name": "Hobgoblin Archer", "side_default": "opponents", "stamina": 9, "init_mod": 0, "rank": "2", "tags": ["humanoid","hobgoblin","minion","artillery"], "biomes": ["plains","fortress"], "icon": "" },
+    { "id": "hobgoblin-sorcerer", "name": "Hobgoblin Sorcerer", "side_default": "opponents", "stamina": 15, "init_mod": 0, "rank": "3", "tags": ["humanoid","hobgoblin","horde","hexer"], "biomes": ["plains","fortress"], "icon": "" },
+    { "id": "hobgoblin-captain", "name": "Hobgoblin Captain", "side_default": "opponents", "stamina": 26, "init_mod": 0, "rank": "5", "tags": ["humanoid","hobgoblin","leader"], "biomes": ["plains","fortress"], "icon": "" },
+    { "id": "hobgoblin-warlord", "name": "Hobgoblin Warlord", "side_default": "opponents", "stamina": 44, "init_mod": 0, "rank": "7", "tags": ["humanoid","hobgoblin","elite","leader"], "biomes": ["plains","fortress"], "icon": "" },
+    { "id": "hobgoblin-overlord", "name": "Hobgoblin Overlord", "side_default": "opponents", "stamina": 66, "init_mod": 0, "rank": "9", "tags": ["humanoid","hobgoblin","solo","leader"], "biomes": ["plains","fortress"], "icon": "" },
+
+    /* -------------------- GOBLINS -------------------- */
+    { "id": "goblin-cutter", "name": "Goblin Cutter", "side_default": "opponents", "stamina": 5, "init_mod": 0, "rank": "1", "tags": ["humanoid","goblin","minion","brute"], "biomes": ["forest","hills"], "icon": "" },
+    { "id": "goblin-sneak", "name": "Goblin Sneak", "side_default": "opponents", "stamina": 4, "init_mod": 0, "rank": "1", "tags": ["humanoid","goblin","minion","harrier"], "biomes": ["forest","hills"], "icon": "" },
+    { "id": "goblin-slinger", "name": "Goblin Slinger", "side_default": "opponents", "stamina": 4, "init_mod": 0, "rank": "1", "tags": ["humanoid","goblin","minion","artillery"], "biomes": ["forest","hills"], "icon": "" },
+    { "id": "goblin-bruiser", "name": "Goblin Bruiser", "side_default": "opponents", "stamina": 12, "init_mod": 0, "rank": "2", "tags": ["humanoid","goblin","horde","brute"], "biomes": ["forest","hills"], "icon": "" },
+    { "id": "goblin-stalker", "name": "Goblin Stalker", "side_default": "opponents", "stamina": 14, "init_mod": 0, "rank": "2", "tags": ["humanoid","goblin","horde","harrier"], "biomes": ["forest","hills"], "icon": "" },
+    { "id": "goblin-hexer", "name": "Goblin Hexer", "side_default": "opponents", "stamina": 15, "init_mod": 0, "rank": "3", "tags": ["humanoid","goblin","horde","hexer"], "biomes": ["forest","hills"], "icon": "" },
+    { "id": "goblin-chief", "name": "Goblin Chief", "side_default": "opponents", "stamina": 20, "init_mod": 0, "rank": "4", "tags": ["humanoid","goblin","leader"], "biomes": ["forest","hills"], "icon": "" },
+    { "id": "goblin-warlock", "name": "Goblin Warlock", "side_default": "opponents", "stamina": 28, "init_mod": 0, "rank": "5", "tags": ["humanoid","goblin","elite","hexer"], "biomes": ["forest","hills"], "icon": "" },
+    { "id": "goblin-king", "name": "Goblin King", "side_default": "opponents", "stamina": 40, "init_mod": 0, "rank": "6", "tags": ["humanoid","goblin","leader","controller"], "biomes": ["forest","hills"], "icon": "" },
+
+    /* -------------------- KOBOLDS -------------------- */
+    { "id": "kobold-cutter", "name": "Kobold Cutter", "side_default": "opponents", "stamina": 3, "init_mod": 0, "rank": "1", "tags": ["humanoid","kobold","minion","brute"], "biomes": ["caves","hills"], "icon": "" },
+    { "id": "kobold-slinker", "name": "Kobold Slinker", "side_default": "opponents", "stamina": 3, "init_mod": 0, "rank": "1", "tags": ["humanoid","kobold","minion","harrier"], "biomes": ["caves","hills"], "icon": "" },
+    { "id": "kobold-slinger", "name": "Kobold Slinger", "side_default": "opponents", "stamina": 4, "init_mod": 0, "rank": "1", "tags": ["humanoid","kobold","minion","artillery"], "biomes": ["caves","hills"], "icon": "" },
+    { "id": "kobold-dragonshield", "name": "Kobold Dragonshield", "side_default": "opponents", "stamina": 12, "init_mod": 0, "rank": "2", "tags": ["humanoid","kobold","horde","brute"], "biomes": ["caves","hills"], "icon": "" },
+    { "id": "kobold-hexer", "name": "Kobold Hexer", "side_default": "opponents", "stamina": 14, "init_mod": 0, "rank": "2", "tags": ["humanoid","kobold","horde","hexer"], "biomes": ["caves","hills"], "icon": "" },
+    { "id": "kobold-chieftain", "name": "Kobold Chieftain", "side_default": "opponents", "stamina": 20, "init_mod": 0, "rank": "3", "tags": ["humanoid","kobold","leader"], "biomes": ["caves","hills"], "icon": "" },
+    { "id": "kobold-dragon-priest", "name": "Kobold Dragon Priest", "side_default": "opponents", "stamina": 28, "init_mod": 0, "rank": "4", "tags": ["humanoid","kobold","elite","hexer"], "biomes": ["caves","hills"], "icon": "" },
+
+    /* -------------------- GNOLLS -------------------- */
+    { "id": "gnoll-savage", "name": "Gnoll Savage", "side_default": "opponents", "stamina": 6, "init_mod": 0, "rank": "2", "tags": ["humanoid","gnoll","minion","brute"], "biomes": ["plains","savanna"], "icon": "" },
+    { "id": "gnoll-hunter", "name": "Gnoll Hunter", "side_default": "opponents", "stamina": 7, "init_mod": 0, "rank": "2", "tags": ["humanoid","gnoll","minion","harrier"], "biomes": ["plains","savanna"], "icon": "" },
+    { "id": "gnoll-scorcher", "name": "Gnoll Scorcher", "side_default": "opponents", "stamina": 8, "init_mod": 0, "rank": "3", "tags": ["humanoid","gnoll","horde","artillery"], "biomes": ["plains","savanna"], "icon": "" },
+    { "id": "gnoll-warchief", "name": "Gnoll Warchief", "side_default": "opponents", "stamina": 20, "init_mod": 0, "rank": "4", "tags": ["humanoid","gnoll","leader","brute"], "biomes": ["plains","savanna"], "icon": "" },
+    { "id": "gnoll-packlord", "name": "Gnoll Packlord", "side_default": "opponents", "stamina": 28, "init_mod": 0, "rank": "5", "tags": ["humanoid","gnoll","leader","controller"], "biomes": ["plains","savanna"], "icon": "" },
+    { "id": "gnoll-demigod", "name": "Gnoll Demigod", "side_default": "opponents", "stamina": 66, "init_mod": 0, "rank": "9", "tags": ["humanoid","gnoll","solo","leader"], "biomes": ["plains","savanna"], "icon": "" },
+
+    /* -------------------- BUGBEARS -------------------- */
+    { "id": "bugbear-thug", "name": "Bugbear Thug", "side_default": "opponents", "stamina": 10, "init_mod": 0, "rank": "2", "tags": ["humanoid","bugbear","minion","brute"], "biomes": ["forest","hills"], "icon": "" },
+    { "id": "bugbear-stalker", "name": "Bugbear Stalker", "side_default": "opponents", "stamina": 12, "init_mod": 0, "rank": "3", "tags": ["humanoid","bugbear","horde","harrier"], "biomes": ["forest","hills"], "icon": "" },
+    { "id": "bugbear-hexer", "name": "Bugbear Hexer", "side_default": "opponents", "stamina": 14, "init_mod": 0, "rank": "3", "tags": ["humanoid","bugbear","horde","hexer"], "biomes": ["forest","hills"], "icon": "" },
+    { "id": "bugbear-chief", "name": "Bugbear Chief", "side_default": "opponents", "stamina": 26, "init_mod": 0, "rank": "5", "tags": ["humanoid","bugbear","leader","brute"], "biomes": ["forest","hills"], "icon": "" },
+    { "id": "bugbear-warlord", "name": "Bugbear Warlord", "side_default": "opponents", "stamina": 40, "init_mod": 0, "rank": "7", "tags": ["humanoid","bugbear","leader","controller"], "biomes": ["forest","hills"], "icon": "" },
+
+    /* -------------------- LIZARDFOLK -------------------- */
+    { "id": "lizardfolk-scout", "name": "Lizardfolk Scout", "side_default": "opponents", "stamina": 6, "init_mod": 0, "rank": "2", "tags": ["humanoid","lizardfolk","minion","harrier"], "biomes": ["swamp","river"], "icon": "" },
+    { "id": "lizardfolk-warrior", "name": "Lizardfolk Warrior", "side_default": "opponents", "stamina": 8, "init_mod": 0, "rank": "2", "tags": ["humanoid","lizardfolk","minion","brute"], "biomes": ["swamp","river"], "icon": "" },
+    { "id": "lizardfolk-shaman", "name": "Lizardfolk Shaman", "side_default": "opponents", "stamina": 14, "init_mod": 0, "rank": "3", "tags": ["humanoid","lizardfolk","horde","hexer"], "biomes": ["swamp","river"], "icon": "" },
+    { "id": "lizardfolk-chieftain", "name": "Lizardfolk Chieftain", "side_default": "opponents", "stamina": 26, "init_mod": 0, "rank": "5", "tags": ["humanoid","lizardfolk","leader"], "biomes": ["swamp","river"], "icon": "" },
+    { "id": "lizardfolk-leviathan", "name": "Lizardfolk Leviathan", "side_default": "opponents", "stamina": 58, "init_mod": 0, "rank": "8", "tags": ["humanoid","lizardfolk","solo","brute"], "biomes": ["swamp","river"], "icon": "" }
+  ]
+}

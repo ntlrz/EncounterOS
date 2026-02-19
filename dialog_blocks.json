@@ -1,12 +1,14 @@
-{
-  "Let's change the dialog tree": {
+[
+  {
     "id": "582f69f9-c256-403f-9d58-378ff00b7a2e",
+    "text": "Let's change the dialog tree",
     "speaker": "",
     "time": ""
   },
-  "A second dialog box!": {
+  {
     "id": "e4746834-f712-4c77-af1d-b0d7517dab92",
+    "text": "A second dialog box!",
     "speaker": "",
     "time": ""
   }
-}
+]

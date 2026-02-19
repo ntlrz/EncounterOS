@@ -1,7 +1,12 @@
 {
-  "combatMode": false,
-  "turnIndex": 0,
-  "dialogIndex": 0,
   "theme": "gm_modern",
-  "combat_mode": true
+  "auto_refresh": true,
+  "poll_ms": 200,
+  "ui_dark": true,
+  "mode": "dialog",
+  "overlay": {
+    "screen": null,
+    "fit": "contain",
+    "fullscreen": true
+  }
 }

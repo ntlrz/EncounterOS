@@ -1,8 +1,3 @@
-Arannis: Watch out, there's movement ahead.
-
-Thorne: My blade is ready.
-
-Goblin: Grrrrhrr!!
-
-Narrator:
-The party braces for combat...
+Let's change the dialog tree
+---
+A second dialog box!

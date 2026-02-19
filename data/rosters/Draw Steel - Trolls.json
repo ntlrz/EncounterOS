@@ -1,0 +1,139 @@
+{
+  "pack_id": "drawsteel_trolls",
+  "name": "Draw Steel – Trolls",
+  "system": "drawsteel",
+  "entries": [
+    {
+      "id": "bog-troll",
+      "name": "Bog Troll",
+      "side_default": "opponents",
+      "stamina": 10,
+      "init_mod": 0,
+      "rank": "3",
+      "tags": ["giantkin", "troll", "minion", "brute"],
+      "biomes": ["swamp"],
+      "icon": ""
+    },
+    {
+      "id": "cliff-troll",
+      "name": "Cliff Troll",
+      "side_default": "opponents",
+      "stamina": 12,
+      "init_mod": 0,
+      "rank": "3",
+      "tags": ["giantkin", "troll", "minion", "harrier"],
+      "biomes": ["mountains", "cliffs"],
+      "icon": ""
+    },
+    {
+      "id": "troll-mauler",
+      "name": "Troll Mauler",
+      "side_default": "opponents",
+      "stamina": 24,
+      "init_mod": 0,
+      "rank": "4",
+      "tags": ["giantkin", "troll", "horde", "brute"],
+      "biomes": ["hills", "swamp"],
+      "icon": ""
+    },
+    {
+      "id": "troll-shrieker",
+      "name": "Troll Shrieker",
+      "side_default": "opponents",
+      "stamina": 26,
+      "init_mod": 0,
+      "rank": "4",
+      "tags": ["giantkin", "troll", "horde", "controller"],
+      "biomes": ["caves", "hills"],
+      "icon": ""
+    },
+    {
+      "id": "war-troll",
+      "name": "War Troll",
+      "side_default": "opponents",
+      "stamina": 34,
+      "init_mod": 0,
+      "rank": "5",
+      "tags": ["giantkin", "troll", "platoon", "brute"],
+      "biomes": ["hills", "mountains"],
+      "icon": ""
+    },
+    {
+      "id": "troll-hunter",
+      "name": "Troll Hunter",
+      "side_default": "opponents",
+      "stamina": 37,
+      "init_mod": 0,
+      "rank": "5",
+      "tags": ["giantkin", "troll", "platoon", "harrier"],
+      "biomes": ["forest", "mountains"],
+      "icon": ""
+    },
+    {
+      "id": "troll-chief",
+      "name": "Troll Chief",
+      "side_default": "opponents",
+      "stamina": 45,
+      "init_mod": 0,
+      "rank": "6",
+      "tags": ["giantkin", "troll", "platoon", "leader"],
+      "biomes": ["hills", "swamp"],
+      "icon": ""
+    },
+    {
+      "id": "ironhide-troll",
+      "name": "Ironhide Troll",
+      "side_default": "opponents",
+      "stamina": 58,
+      "init_mod": 0,
+      "rank": "7",
+      "tags": ["giantkin", "troll", "elite", "brute"],
+      "biomes": ["mountains"],
+      "icon": ""
+    },
+    {
+      "id": "witch-troll",
+      "name": "Witch Troll",
+      "side_default": "opponents",
+      "stamina": 63,
+      "init_mod": 0,
+      "rank": "7",
+      "tags": ["giantkin", "troll", "elite", "hexer"],
+      "biomes": ["swamp", "forest"],
+      "icon": ""
+    },
+    {
+      "id": "troll-lord",
+      "name": "Troll Lord",
+      "side_default": "opponents",
+      "stamina": 78,
+      "init_mod": 0,
+      "rank": "8",
+      "tags": ["giantkin", "troll", "leader", "brute"],
+      "biomes": ["mountains", "hills"],
+      "icon": ""
+    },
+    {
+      "id": "troll-overseer",
+      "name": "Troll Overseer",
+      "side_default": "opponents",
+      "stamina": 82,
+      "init_mod": 0,
+      "rank": "9",
+      "tags": ["giantkin", "troll", "leader", "controller"],
+      "biomes": ["caves", "hills"],
+      "icon": ""
+    },
+    {
+      "id": "troll-behemoth",
+      "name": "Troll Behemoth",
+      "side_default": "opponents",
+      "stamina": 120,
+      "init_mod": 0,
+      "rank": "11",
+      "tags": ["giantkin", "troll", "solo", "brute"],
+      "biomes": ["mountains", "hills"],
+      "icon": ""
+    }
+  ]
+}
