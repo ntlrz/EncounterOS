@@ -1,9 +1,10 @@
 {
+  "renderer_mode": "dark_parchment",
   "layout": {
     "grid": { "cols": 24, "rows": 24, "margin": 16, "gutter": 8 },
     "regions": {
       "right_column": { "gridRect": [15, 2, 9, 20] },
-      "dialog_box":   { "gridRect": [1, 19, 13, 4] }
+      "dialog_box":   { "gridRect": [1, 18, 14, 5] }
     }
   },
   "vars": {
@@ -15,12 +16,18 @@
       "hp_good": "#81C784",
       "hp_back": "#C97171",
       "dialog_bg": "#1E180F",
-      "dialog_border": "#C7A97A"
+      "dialog_border": "#C7A97A",
+      "metric_fill": "#C6A76C",
+      "metric_track": "#4A3C2A",
+      "condition_text": "#E4D2B4",
+      "condition_bg": "#2B2316",
+      "condition_border": "#8E7651",
+      "speaker_text": "#E1C38D"
     },
     "fonts": {
       "base_family": "Georgia",
-      "base_size": 13,
-      "dialog_size": 15,
+      "base_size": 15,
+      "dialog_size": 17,
       "small_size": 11
     }
   }

@@ -1,26 +1,33 @@
 {
+  "renderer_mode": "gm_modern",
   "layout": {
     "grid": { "cols": 24, "rows": 24, "margin": 12, "gutter": 10 },
     "regions": {
       "right_column": { "gridRect": [16, 2, 8, 20] },
-      "dialog_box":   { "gridRect": [1, 20, 14, 3] }
+      "dialog_box":   { "gridRect": [1, 18, 14, 5] }
     }
   },
   "vars": {
     "colors": {
-      "card_bg": "#0E0E10",
-      "border_idle": "#6F6F7A",
-      "border_active": "#FFD864",
-      "text": "#FFFFFF",
-      "hp_good": "#3DDC84",
-      "hp_back": "#D9534F",
-      "dialog_bg": "#141414",
-      "dialog_border": "#6F6F7A"
+      "card_bg": "#16191D",
+      "border_idle": "#4A5058",
+      "border_active": "#D6A84B",
+      "text": "#F2F0EA",
+      "hp_good": "#85B89A",
+      "hp_back": "#C98278",
+      "dialog_bg": "#101318",
+      "dialog_border": "#59616C",
+      "metric_fill": "#62A88A",
+      "metric_track": "#30353B",
+      "condition_text": "#E9E7E1",
+      "condition_bg": "#252A30",
+      "condition_border": "#555D67",
+      "speaker_text": "#D6A84B"
     },
     "fonts": {
-      "base_family": "Consolas",
-      "base_size": 12,
-      "dialog_size": 14,
+      "base_family": "Segoe UI",
+      "base_size": 15,
+      "dialog_size": 17,
       "small_size": 10
     }
   }

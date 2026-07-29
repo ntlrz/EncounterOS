@@ -1,27 +1,34 @@
 {
+  "renderer_mode": "rpg_retro",
   "layout": {
     "grid": { "cols": 24, "rows": 24, "margin": 8, "gutter": 6 },
     "regions": {
       "right_column": { "gridRect": [17, 2, 7, 20] },
-      "dialog_box":   { "gridRect": [1, 21, 15, 2] }
+      "dialog_box":   { "gridRect": [1, 19, 15, 4] }
     }
   },
   "vars": {
     "colors": {
-      "card_bg": "#000000",
-      "border_idle": "#B8B8B8",
-      "border_active": "#FFFF00",
-      "text": "#FFFFFF",
-      "hp_good": "#00FF00",
-      "hp_back": "#FF0000",
-      "dialog_bg": "#000000",
-      "dialog_border": "#B8B8B8"
+      "card_bg": "#0B100A",
+      "border_idle": "#78915E",
+      "border_active": "#D6D67A",
+      "text": "#D2E3B4",
+      "hp_good": "#9DBC78",
+      "hp_back": "#C18B73",
+      "dialog_bg": "#080C07",
+      "dialog_border": "#78915E",
+      "metric_fill": "#A8C97B",
+      "metric_track": "#273420",
+      "condition_text": "#D2E3B4",
+      "condition_bg": "#0B100A",
+      "condition_border": "#78915E",
+      "speaker_text": "#D6D67A"
     },
     "fonts": {
       "base_family": "Consolas",
-      "base_size": 10,
-      "dialog_size": 12,
-      "small_size": 9
+      "base_size": 13,
+      "dialog_size": 14,
+      "small_size": 10
     }
   }
 }
