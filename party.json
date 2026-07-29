@@ -1,76 +1,53 @@
 {
   "party": [
     {
-      "name": "Planetar",
-      "hp": 195,
-      "hpMax": 200,
-      "initMod": 2,
-      "initTotal": 18,
-      "statuses": [
-        "concentrating"
-      ],
-      "portrait": null,
-      "isPC": true,
-      "rank": "16",
-      "tags": [
-        "celestial",
-        "large",
-        "angel",
-        "leader"
-      ],
-      "system": "5e",
-      "initRoll": 16
-    },
-    {
-      "name": "Boss Baby",
-      "hp": 20,
-      "hpMax": 20,
-      "initMod": 10,
-      "initTotal": 17,
-      "initRoll": 7,
-      "notes": "",
-      "statuses": [],
-      "portrait": "C:\\Users\\schwe\\OneDrive\\Pictures\\zapatista.png",
-      "side": "Friendly"
-    },
-    {
-      "name": "Young Blue Dragon",
-      "hp": 152,
-      "hpMax": 152,
-      "initMod": 0,
-      "initTotal": 16,
-      "statuses": [],
-      "portrait": null,
-      "isPC": false,
-      "rank": "9",
-      "tags": [
-        "dragon",
-        "large",
-        "lightning",
-        "flying"
-      ],
-      "system": "5e",
-      "initRoll": 16
-    },
-    {
-      "name": "Bone Devil",
-      "hp": 142,
-      "hpMax": 142,
-      "initMod": 2,
-      "initTotal": 9,
-      "statuses": [],
-      "portrait": null,
-      "isPC": false,
-      "rank": "9",
+      "biomes": [],
+      "icon": "",
+      "id": "dreadling",
+      "init_mod": 0,
+      "name": "Dreadling",
+      "rank": "6",
+      "side_default": "opponents",
+      "stamina": 33,
       "tags": [
         "fiend",
-        "large",
-        "devil"
+        "demon",
+        "platoon",
+        "artillery"
       ],
-      "system": "5e",
-      "initRoll": 7
+      "hp": 33,
+      "hpMax": 33,
+      "initMod": 0,
+      "initTotal": null,
+      "statuses": [],
+      "portrait": null,
+      "isPC": false,
+      "system": "drawsteel"
+    },
+    {
+      "name": "Guard",
+      "hp": 20,
+      "hpMax": 20,
+      "initMod": 0,
+      "initTotal": null,
+      "notes": "",
+      "statuses": [
+        "baned"
+      ],
+      "portrait": "icons\\dialog_portraits\\knight.png",
+      "side": "Friendly",
+      "isPC": true,
+      "portraits": [
+        {
+          "id": "84b7bad0-5ad1-4aa4-8612-ec0983e4ccda",
+          "label": "knight",
+          "file": "icons\\dialog_portraits\\knight.png"
+        }
+      ],
+      "id": "032766f9-e2c0-4433-844b-69224baaa775",
+      "initRoll": null
     }
   ],
-  "turn_index": 0,
-  "round": 3
+  "turn_index": -1,
+  "round": 1
 }

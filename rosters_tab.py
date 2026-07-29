@@ -1,6 +1,7 @@
 # rosters_tab.py — Packs with Systems + Ranks + Multi-pack selection
 from __future__ import annotations
 from PySide6 import QtWidgets, QtCore
+from copy import deepcopy
 from pathlib import Path
 from typing import Dict, Any, List, Tuple
 
@@ -9,6 +10,9 @@ from helpers import (
     safe_json, write_json, collect_suffixes, next_suffix,
     parse_rank, rank_label_for_pack,
 )
+from combat_metrics import initialize_live_metric_fields, resolve_combat_metric
+from portrait_library import PORTRAIT_SOURCE_DIR_FIELD
+from combat_tab import ensure_live_combat_instance_ids
 
 Pack = Dict[str, Any]
 
@@ -208,32 +212,32 @@ class RostersTab(QtWidgets.QWidget):
 
     # ---------- Normalize & add ----------
     def _normalize_member(self, m: Dict, pack: Pack) -> Dict:
-        """Map various pack fields into the CombatTab model."""
-        # HP/Stamina
-        hp = m.get("hp")
-        if hp is None:
-            hp = m.get("stamina", 1)  # Draw Steel uses 'stamina' :contentReference[oaicite:11]{index=11}
-        hp = max(1, int(hp))
+        """Map pack fields into a mutable CombatTab live instance."""
+        metric = resolve_combat_metric(m, pack)
         # Init mod variants
         init_mod = m.get("initMod", m.get("init_mod", 0))
         # Side -> isPC
         side = (m.get("side_default") or "").lower()
         is_pc = (side == "allies")
 
-        out = {
+        out = deepcopy(m)
+        out.update({
             "name": m.get("name", "Creature"),
-            "hp": hp,
-            "hpMax": hp,
             "initMod": int(init_mod or 0),
             "initTotal": None,
             "statuses": [],
-            "portrait": m.get("icon") or None,
+            "portrait": m.get("portrait") or m.get("icon") or None,
             "isPC": is_pc,
             # You can carry through pack/system/rank tags if useful later:
             "rank": m.get("rank"),
             "tags": list(m.get("tags") or []),
-            "system": pack.get("system"),
-        }
+        })
+        initialize_live_metric_fields(out, metric)
+        if not out.get("system"):
+            out["system"] = pack.get("system")
+        source = pack.get("file")
+        if source:
+            out.setdefault(PORTRAIT_SOURCE_DIR_FIELD, str(Path(source).resolve().parent))
         return out
 
     def _uniqueize_batch(self, members: List[Dict]) -> List[Dict]:
@@ -242,7 +246,7 @@ class RostersTab(QtWidgets.QWidget):
         for i, m in enumerate(members):
             base = (m.get("name") or "Creature").split(" (")[0]
             taken = collect_suffixes(base, existing + [x.get("name","") for x in uniq])
-            mm = dict(m)
+            mm = deepcopy(m)
             if "" in taken:  # already a bare duplicate name, add a suffix
                 mm["name"] = f"{base} ({next_suffix(taken)})"
             uniq.append(mm)
@@ -258,6 +262,7 @@ class RostersTab(QtWidgets.QWidget):
         payload = self._uniqueize_batch(payload)
         # Push into Combat and persist/refresh (your CombatTab API) :contentReference[oaicite:12]{index=12}
         self.parent.combat_tab.combatants.extend(payload)
+        ensure_live_combat_instance_ids(self.parent.combat_tab.combatants)
         self.parent.combat_tab._refresh_combat_list()
         self.parent.combat_tab._persist_party()
 

@@ -10,5 +10,16 @@
     "text": "A second dialog box!",
     "speaker": "",
     "time": ""
+  },
+  {
+    "id": "7b5cecce-65df-4c90-9f3f-afcbf6b36619",
+    "text": "What is going on??",
+    "speaker": "Elder",
+    "time": "",
+    "placement": "left",
+    "portrait_facing": "left",
+    "portrait_scale": 1.0,
+    "portrait_offset_x": 0,
+    "portrait_offset_y": 0
   }
 ]

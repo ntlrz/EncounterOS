@@ -1,10 +1,38 @@
 from __future__ import annotations
 from PySide6 import QtWidgets, QtCore, QtGui
-from pathlib import Path
-import json
+from copy import deepcopy
 
 from app_paths import DATA_ROOT, COMBAT_DIR, DIALOG_DIR
-from helpers import safe_json, write_json
+from helpers import load_json, write_json
+from portrait_library import PORTRAIT_SOURCE_DIR_FIELD
+from combat_tab import ensure_live_combat_instance_ids
+
+
+def parse_combat_encounter(data):
+    if not isinstance(data, dict) or "party" not in data:
+        raise ValueError("unsupported combat encounter format (expected a 'party' list)")
+    party = data.get("party")
+    if not isinstance(party, list) or not all(isinstance(member, dict) for member in party):
+        raise ValueError("'party' must be a list of objects")
+    turn_index = data.get("turn_index", -1)
+    round_number = data.get("round", 1)
+    if not isinstance(turn_index, int) or isinstance(turn_index, bool):
+        raise ValueError("'turn_index' must be an integer")
+    if not isinstance(round_number, int) or isinstance(round_number, bool):
+        raise ValueError("'round' must be an integer")
+    return [deepcopy(member) for member in party], turn_index, round_number
+
+
+def parse_dialog_encounter(data):
+    if not isinstance(data, dict) or "dialog" not in data:
+        raise ValueError("unsupported dialog encounter format (expected a 'dialog' list)")
+    blocks = data.get("dialog")
+    if not isinstance(blocks, list) or not all(isinstance(block, dict) for block in blocks):
+        raise ValueError("'dialog' must be a list of objects")
+    dialog_index = data.get("dialog_index", -1)
+    if not isinstance(dialog_index, int) or isinstance(dialog_index, bool):
+        raise ValueError("'dialog_index' must be an integer")
+    return [deepcopy(block) for block in blocks], dialog_index
 
 class EncountersTab(QtWidgets.QWidget):
     def __init__(self, parent: QtWidgets.QMainWindow):
@@ -54,7 +82,7 @@ class EncountersTab(QtWidgets.QWidget):
     def _save_combat(self):
         name, ok = QtWidgets.QInputDialog.getText(self, "Save Encounter", "Enter name for combat encounter:")
         if not ok or not name: return
-        
+        ensure_live_combat_instance_ids(self.parent.combat_tab.combatants)
         payload = {
             "party": self.parent.combat_tab.combatants,
             "turn_index": self.parent.combat_tab.turn_index,
@@ -92,18 +120,53 @@ class EncountersTab(QtWidgets.QWidget):
         if enc_type == "Combat":
             fp = COMBAT_DIR / f"{enc_name}.json"
             if fp.exists():
-                data = safe_json(fp, {})
-                self.parent.combat_tab.combatants = data.get("party", [])
-                self.parent.combat_tab.turn_index = data.get("turn_index", -1)
-                self.parent.combat_tab.round = data.get("round", 1)
+                result = load_json(fp)
+                if not result.valid:
+                    QtWidgets.QMessageBox.warning(
+                        self, "Encounter Not Loaded",
+                        f"{fp.name} is not valid JSON and the current combat was left unchanged."
+                    )
+                    return
+                try:
+                    party, turn_index, round_number = parse_combat_encounter(result.data)
+                except ValueError as e:
+                    QtWidgets.QMessageBox.warning(
+                        self, "Encounter Not Loaded",
+                        f"{e}\n\nThe current combat was left unchanged."
+                    )
+                    return
+                source_dir = str(fp.resolve().parent)
+                for member in party:
+                    member.setdefault(PORTRAIT_SOURCE_DIR_FIELD, source_dir)
+                ensure_live_combat_instance_ids(party)
+                self.parent.combat_tab.combatants = party
+                self.parent.combat_tab.turn_index = turn_index
+                self.parent.combat_tab.round = round_number
                 self.parent.combat_tab._refresh_combat_list()
                 self.parent._log(f"Loaded combat encounter: {enc_name}")
         elif enc_type == "Dialog":
             fp = DIALOG_DIR / f"{enc_name}.json"
             if fp.exists():
-                data = safe_json(fp, {})
-                self.parent.dialog_tab.dialog_blocks = data.get("dialog", [])
-                self.parent.dialog_tab.dialog_index = data.get("dialog_index", -1)
+                result = load_json(fp)
+                if not result.valid:
+                    QtWidgets.QMessageBox.warning(
+                        self, "Encounter Not Loaded",
+                        f"{fp.name} is not valid JSON and the current dialog was left unchanged."
+                    )
+                    return
+                try:
+                    blocks, dialog_index = parse_dialog_encounter(result.data)
+                except ValueError as e:
+                    QtWidgets.QMessageBox.warning(
+                        self, "Encounter Not Loaded",
+                        f"{e}\n\nThe current dialog was left unchanged."
+                    )
+                    return
+                source_dir = str(fp.resolve().parent)
+                for block in blocks:
+                    block.setdefault(PORTRAIT_SOURCE_DIR_FIELD, source_dir)
+                self.parent.dialog_tab.dialog_blocks = blocks
+                self.parent.dialog_tab.dialog_index = dialog_index
                 self.parent.dialog_tab._refresh_dialog_list()
                 self.parent._log(f"Loaded dialog encounter: {enc_name}")
 

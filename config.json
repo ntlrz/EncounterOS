@@ -3,10 +3,25 @@
   "auto_refresh": true,
   "poll_ms": 200,
   "ui_dark": true,
-  "mode": "dialog",
+  "mode": "combat",
   "overlay": {
     "screen": null,
     "fit": "contain",
     "fullscreen": true
-  }
+  },
+  "shortcuts": {
+    "toggle_overlay": "F4",
+    "advance_turn": "F5",
+    "previous_turn": "F7",
+    "toggle_mode": "F6",
+    "focus_search": "/",
+    "add_dialog": "Ctrl+Return",
+    "make_dialog_current": "F8"
+  },
+  "window": {
+    "geometry": "AdnQywADAAAAAABVAAAAPgAACGwAAAT4AAAAVQAAAF0AAAhsAAAE+AAAAAAAAAAACgAAAABVAAAAXQAACGwAAAT4",
+    "state": "AAAA/wAAAAL9AAAAAgAAAAAAAAPPAAAEUPwCAAAAAvsAAAAWAGQAbwBjAGsAXwBjAG8AbQBiAGEAdAEAAABMAAABuQAAAPIA////+wAAABYAZABvAGMAawBfAGQAaQBhAGwAbwBnAQAAAgkAAAKTAAAA9AD///8AAAABAAADsQAABFD8AgAAAAL7AAAAGABkAG8AYwBrAF8AcgBvAHMAdABlAHIAcwEAAABMAAAB5AAAAMgA/////AAAAjQAAAJoAAABWgEAACP6AAAAAAIAAAAE+wAAAB4AZABvAGMAawBfAGUAbgBjAG8AdQBuAHQAZQByAHMBAAAAAP////8AAADIAP////sAAAAUAGQAbwBjAGsAXwBuAG8AdABlAHMBAAAAAP////8AAAEwAP////sAAAASAGQAbwBjAGsAXwBkAGkAYwBlAQAAAAD/////AAABNgD////7AAAAFgBkAG8AYwBrAF8AdABpAG0AZQByAHMBAAAAAP////8AAAEGAP///wAAAJAAAARQAAAAAQAAAAIAAAABAAAAAvwAAAABAAAAAgAAAAIAAAAYAHQAbwBvAGwAYgBhAHIAXwBtAGEAaQBuAQAAAAD/////AAAAAAAAAAAAAAAoAHQAbwBvAGwAYgBhAHIAXwBwAHIAZQBzAGUAbgB0AGEAdABpAG8AbgEAAAHV/////wAAAAAAAAAA"
+  },
+  "show_secondary_combat_metrics": false,
+  "enemy_health_disclosure": "condition"
 }

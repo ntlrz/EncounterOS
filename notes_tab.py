@@ -4,9 +4,9 @@ from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWebChannel import QWebChannel
 from pathlib import Path
 import markdown
-import re
 
 from app_paths import VAULT_DIR
+from helpers import atomic_write_text
 from styles import MD_CSS
 
 class NotesTab(QtWidgets.QWidget):
@@ -15,6 +15,7 @@ class NotesTab(QtWidgets.QWidget):
         self.parent = parent
         self._notes_files = []
         self._current_note_fp: Path | None = None
+        self._current_note_row = -1
         self._saved_content = ""  # Track saved content to detect unsaved changes
         self._build_ui()
         self._load_notes_list()
@@ -55,34 +56,75 @@ class NotesTab(QtWidgets.QWidget):
         self.btnSave.clicked.connect(self._save_note)
         self.btnNew.clicked.connect(self._new_note)
         
-    def _load_notes_list(self):
+    def _load_notes_list(self, select_fp: Path | None = None):
+        old = self.notes_list.blockSignals(True)
         self.notes_list.clear()
         self._notes_files = sorted(VAULT_DIR.glob("*.md"))
         for fp in self._notes_files:
             self.notes_list.addItem(fp.stem)
-        
-        if self._notes_files:
-            self.notes_list.setCurrentRow(0)
+        target = select_fp or self._current_note_fp
+        row = self._notes_files.index(target) if target in self._notes_files else (0 if self._notes_files else -1)
+        self.notes_list.setCurrentRow(row)
+        self.notes_list.blockSignals(old)
+        if row >= 0 and (self._current_note_fp != self._notes_files[row] or self._current_note_row != row):
+            self._on_note_selected(row)
 
     def _on_note_selected(self, row: int):
-        if 0 <= row < len(self._notes_files):
-            self._current_note_fp = self._notes_files[row]
-            with self._current_note_fp.open("r", encoding="utf-8") as f:
+        if not (0 <= row < len(self._notes_files)):
+            return
+        if self._current_note_fp == self._notes_files[row] and self._current_note_row == row:
+            return
+        if not self._confirm_unsaved_changes():
+            old = self.notes_list.blockSignals(True)
+            self.notes_list.setCurrentRow(self._current_note_row)
+            self.notes_list.blockSignals(old)
+            return
+        next_fp = self._notes_files[row]
+        try:
+            with next_fp.open("r", encoding="utf-8") as f:
                 text = f.read()
-                self.editor.setPlainText(text)
-                self._saved_content = text  # Track what's saved
-                self._update_preview()
+        except (OSError, UnicodeError) as e:
+            QtWidgets.QMessageBox.critical(self, "Open Note Failed", str(e))
+            old = self.notes_list.blockSignals(True)
+            self.notes_list.setCurrentRow(self._current_note_row)
+            self.notes_list.blockSignals(old)
+            return
+        self._current_note_fp = next_fp
+        self._current_note_row = row
+        self.editor.setPlainText(text)
+        self._saved_content = text  # Track what's saved
+        self._update_preview()
+
+    def _confirm_unsaved_changes(self) -> bool:
+        if not self.has_unsaved_changes():
+            return True
+        reply = QtWidgets.QMessageBox.question(
+            self,
+            "Unsaved Changes",
+            "Save changes to the current note before switching?",
+            QtWidgets.QMessageBox.Save | QtWidgets.QMessageBox.Discard | QtWidgets.QMessageBox.Cancel,
+            QtWidgets.QMessageBox.Save,
+        )
+        if reply == QtWidgets.QMessageBox.Save:
+            return self._save_note()
+        if reply == QtWidgets.QMessageBox.Discard:
+            return True
+        return False
 
     def _save_note(self):
         if not self._current_note_fp:
             self._new_note()
-            if not self._current_note_fp: return
+            return bool(self._current_note_fp)
         
         content = self.editor.toPlainText()
-        with self._current_note_fp.open("w", encoding="utf-8") as f:
-            f.write(content)
+        try:
+            atomic_write_text(self._current_note_fp, content, encoding="utf-8")
+        except OSError as e:
+            QtWidgets.QMessageBox.critical(self, "Save Note Failed", str(e))
+            return False
         self._saved_content = content  # Update saved content tracker
         self.parent._log(f"Saved note: {self._current_note_fp.name}")
+        return True
     
     def has_unsaved_changes(self) -> bool:
         """Check if current note has unsaved changes."""
@@ -94,6 +136,8 @@ class NotesTab(QtWidgets.QWidget):
         name, ok = QtWidgets.QInputDialog.getText(self, "New Note", "Note Name:")
         if not ok or not name:
             return
+        if not self._confirm_unsaved_changes():
+            return
         
         new_fp = VAULT_DIR / f"{name.strip()}.md"
         if new_fp.exists():
@@ -101,11 +145,15 @@ class NotesTab(QtWidgets.QWidget):
             return
 
         initial_content = "# " + name.strip() + "\n"
-        with new_fp.open("w", encoding="utf-8") as f:
-            f.write(initial_content)
+        try:
+            atomic_write_text(new_fp, initial_content, encoding="utf-8")
+        except OSError as e:
+            QtWidgets.QMessageBox.critical(self, "Create Note Failed", str(e))
+            return
         
-        self._load_notes_list()
-        self.notes_list.setCurrentRow(self.notes_list.count() - 1)
+        # The user already resolved the current note before this new file was created.
+        self._saved_content = self.editor.toPlainText()
+        self._load_notes_list(select_fp=new_fp)
         # New note is already saved, so track it
         self._saved_content = initial_content
         

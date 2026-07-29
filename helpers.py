@@ -1,10 +1,14 @@
 import json
 import os
 import random
+import shutil
+import stat
+import tempfile
 import zipfile
+from dataclasses import dataclass
 from datetime import datetime, timezone
-from pathlib import Path
-from typing import List, Dict, Optional, Tuple
+from pathlib import Path, PurePosixPath
+from typing import Any, List, Dict, Optional, Tuple
 
 try:
     import markdown as _MD_LIB  # pip install markdown
@@ -20,19 +24,89 @@ def now_iso() -> str:
 def slug(s: str) -> str:
     return "-".join((s or "").strip().lower().split())
 
-def safe_json(path: Path, default):
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except Exception:
-        return default
+@dataclass(frozen=True)
+class JsonLoadResult:
+    path: Path
+    status: str
+    data: Any = None
+    error: str | None = None
 
-def write_json(path: Path, data: dict):
-    path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    @property
+    def valid(self) -> bool:
+        return self.status == "valid"
+
+    @property
+    def missing(self) -> bool:
+        return self.status == "missing"
+
+
+def load_json(path: Path) -> JsonLoadResult:
+    path = Path(path)
+    try:
+        text = path.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return JsonLoadResult(path, "missing")
+    except Exception as e:
+        return JsonLoadResult(path, "invalid", error=str(e))
+    try:
+        return JsonLoadResult(path, "valid", data=json.loads(text))
+    except Exception as e:
+        return JsonLoadResult(path, "invalid", error=str(e))
+
+
+def safe_json(path: Path, default):
+    result = load_json(path)
+    return result.data if result.valid else default
+
+
+def config_bool(value: Any, default: bool = False) -> bool:
+    if isinstance(value, bool):
+        return value
+    return default
+
+
+def config_choice(value: Any, choices, default: str) -> str:
+    if isinstance(value, str):
+        normalized = value.strip().lower()
+        if normalized in choices:
+            return normalized
+    return default
+
+
+def atomic_write_bytes(path: Path, data: bytes):
+    path = Path(path)
+    fd, temp_name = tempfile.mkstemp(
+        dir=str(path.parent),
+        prefix=f".{path.name}.",
+        suffix=".tmp",
+    )
+    temp_path = Path(temp_name)
+    try:
+        with os.fdopen(fd, "wb") as f:
+            f.write(data)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(temp_path, path)
+    except Exception:
+        try:
+            temp_path.unlink()
+        except FileNotFoundError:
+            pass
+        raise
+
+
+def atomic_write_text(path: Path, text: str, encoding: str = "utf-8"):
+    atomic_write_bytes(Path(path), text.encode(encoding))
+
+
+def write_json(path: Path, data: Any):
+    atomic_write_text(Path(path), json.dumps(data, indent=2), encoding="utf-8")
+
 
 def write_dialog_txt(blocks: List[str]):
     text = "\n\n".join(b.strip() for b in blocks if b.strip())
     path = Path("dialog.txt")
-    path.write_text(text, encoding="utf-8")
+    atomic_write_text(path, text, encoding="utf-8")
 
 def collect_suffixes(base_name: str, names: List[str]) -> set:
     base = base_name.strip()
@@ -96,6 +170,35 @@ def rank_label_for_pack(system: str | None, pack_rank_label: str | None) -> str:
 
 def roll_d20() -> int:
     return random.randint(1, 20)
+
+
+def roll_dice(formula: str) -> Tuple[int, str]:
+    """Parse a formula like '1d20+5', '2d6', 'd20', '3d8-2' and return (total, breakdown_str)."""
+    import re
+    formula = (formula or "").strip().lower().replace(" ", "")
+    if not formula:
+        return 0, ""
+
+    # Match one optional N, d, M, optional +X or -X
+    m = re.match(r"^(\d*)d(\d+)([+-]\d+)?$", formula)
+    if not m:
+        return 0, f"Invalid formula: {formula}"
+
+    n = int(m.group(1) or 1)
+    faces = int(m.group(2))
+    mod = int(m.group(3) or 0)
+
+    if n < 1 or faces < 1:
+        return 0, "Invalid formula"
+
+    rolls = [random.randint(1, faces) for _ in range(n)]
+    total = sum(rolls) + mod
+    parts = "+".join(str(r) for r in rolls)
+    if mod != 0:
+        parts += f"{mod:+d}"
+    breakdown = f"{formula} → {parts} = {total}"
+    return total, breakdown
+
 
 def load_status_catalog() -> list[str]:
     """Read status icon names from icons/status/*.png and return a sorted list."""
@@ -162,17 +265,128 @@ def restore_backup(zip_path: Path, base_dir: Path, overwrite: bool = False) -> T
     base_dir = Path(base_dir)
     if not zip_path.exists():
         return False, "Backup file not found."
+    base_dir = base_dir.resolve()
+
+    def validated_members(zf: zipfile.ZipFile):
+        members = []
+        seen = set()
+        reserved_names = {"CON", "PRN", "AUX", "NUL"}
+        reserved_names.update(f"COM{i}" for i in range(1, 10))
+        reserved_names.update(f"LPT{i}" for i in range(1, 10))
+        for info in zf.infolist():
+            raw_name = info.filename.replace("\\", "/")
+            pure = PurePosixPath(raw_name)
+            parts = pure.parts
+            unsafe_windows_part = any(
+                ":" in part
+                or part.endswith((" ", "."))
+                or part.split(".", 1)[0].upper() in reserved_names
+                for part in parts
+            )
+            if (
+                not raw_name
+                or "\x00" in raw_name
+                or pure.is_absolute()
+                or not parts
+                or any(part in ("", ".", "..") for part in parts)
+                or unsafe_windows_part
+            ):
+                raise ValueError(f"Unsafe backup path: {info.filename}")
+            mode = (info.external_attr >> 16) & 0xFFFF
+            if stat.S_ISLNK(mode):
+                raise ValueError(f"Symbolic links are not allowed in backups: {info.filename}")
+            rel = Path(*parts)
+            dest = (base_dir / rel).resolve()
+            try:
+                dest.relative_to(base_dir)
+            except ValueError:
+                raise ValueError(f"Backup path escapes the application directory: {info.filename}")
+            key = os.path.normcase(str(dest))
+            if key in seen:
+                raise ValueError(f"Duplicate backup destination: {info.filename}")
+            seen.add(key)
+            members.append((info, rel, dest))
+        return members
+
     try:
         with zipfile.ZipFile(zip_path, "r") as zf:
-            for info in zf.infolist():
-                dest = base_dir / info.filename
-                if not overwrite and dest.exists() and not info.is_dir():
-                    return False, f"File already exists: {info.filename}. Choose 'Overwrite' to replace."
+            members = validated_members(zf)
+            for info, _, dest in members:
                 if info.is_dir():
-                    dest.mkdir(parents=True, exist_ok=True)
+                    if dest.exists() and not dest.is_dir():
+                        return False, f"Directory conflicts with an existing file: {info.filename}"
                 else:
-                    dest.parent.mkdir(parents=True, exist_ok=True)
-                    dest.write_bytes(zf.read(info))
+                    if dest.exists() and dest.is_dir():
+                        return False, f"File conflicts with an existing directory: {info.filename}"
+                    if not overwrite and dest.exists():
+                        return False, f"File already exists: {info.filename}. Choose 'Overwrite' to replace."
+                for parent in dest.parents:
+                    if parent == base_dir.parent:
+                        break
+                    if parent.exists() and not parent.is_dir():
+                        return False, f"Parent path is not a directory: {info.filename}"
+
+            # Stage on the target filesystem so final replacements stay atomic.
+            stage_parent = base_dir
+            stage_root = Path(tempfile.mkdtemp(prefix=".encounteros-restore-", dir=str(stage_parent)))
+            payload_root = stage_root / "payload"
+            rollback_root = stage_root / "rollback"
+            installed = []
+            displaced = []
+            created_dirs = []
+            try:
+                payload_root.mkdir()
+                rollback_root.mkdir()
+                for info, rel, _ in members:
+                    staged = payload_root / rel
+                    if info.is_dir():
+                        staged.mkdir(parents=True, exist_ok=True)
+                    else:
+                        staged.parent.mkdir(parents=True, exist_ok=True)
+                        with zf.open(info, "r") as source, staged.open("wb") as target:
+                            shutil.copyfileobj(source, target)
+
+                def ensure_directory(path: Path):
+                    missing = []
+                    current = path
+                    while current != base_dir.parent and not current.exists():
+                        missing.append(current)
+                        current = current.parent
+                    if current.exists() and not current.is_dir():
+                        raise NotADirectoryError(str(current))
+                    for directory in reversed(missing):
+                        directory.mkdir()
+                        created_dirs.append(directory)
+
+                for info, _, dest in sorted(members, key=lambda item: len(item[1].parts)):
+                    if info.is_dir():
+                        ensure_directory(dest)
+                        continue
+                    ensure_directory(dest.parent)
+                    staged = payload_root / Path(*PurePosixPath(info.filename.replace("\\", "/")).parts)
+                    if dest.exists():
+                        backup = rollback_root / str(len(displaced))
+                        os.replace(dest, backup)
+                        displaced.append((dest, backup))
+                    os.replace(staged, dest)
+                    installed.append(dest)
+            except Exception:
+                for dest in reversed(installed):
+                    try:
+                        dest.unlink()
+                    except FileNotFoundError:
+                        pass
+                for dest, backup in reversed(displaced):
+                    if backup.exists():
+                        os.replace(backup, dest)
+                for directory in reversed(created_dirs):
+                    try:
+                        directory.rmdir()
+                    except OSError:
+                        pass
+                raise
+            finally:
+                shutil.rmtree(stage_root, ignore_errors=True)
         return True, ""
     except Exception as e:
         return False, str(e)
